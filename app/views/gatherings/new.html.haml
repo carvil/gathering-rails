@@ -1,0 +1,14 @@
+
+= form_for( vm.gathering, as: 'gathering', url: gatherings_path, :html => { class: 'form-horizontal' } ) do |f|
+
+  %fieldset
+    %legend
+      New Gathering
+
+    = render 'form', f: f
+
+    .form-actions
+      %button{ class: 'btn btn-primary', type: 'submit' }
+        Create
+      %button{ class: 'btn', type: 'button', onclick: 'history.go(-1)' }
+        Cancel

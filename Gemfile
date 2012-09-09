@@ -7,6 +7,9 @@ gem "rails", "3.2.8"
 
 gem "sqlite3"
 
+gem "haml", "~> 3.1.7"
+gem "haml-rails", "0.3.5"
+
 # Gems only used for tests
 group :test do
   gem "cucumber", "~> 1.2.1"
@@ -26,8 +29,8 @@ group :assets do
   gem "coffee-rails", "~> 3.2.1"
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-  # gem "therubyracer", :platforms => :ruby
-
+  gem "therubyracer", :platforms => :ruby
+  gem 'bootstrap-sass'
   gem "uglifier", ">= 1.0.3"
 end
 
@@ -40,7 +43,7 @@ gem "jquery-rails"
 # gem "jbuilder"
 
 # Use unicorn as the app server
-# gem "unicorn"
+gem "unicorn", "~> 4.3.1"
 
 # Deploy with Capistrano
 # gem "capistrano"

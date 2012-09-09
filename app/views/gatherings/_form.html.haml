@@ -1,0 +1,25 @@
+- if vm.errors[:name]
+  = vm.errors[:name]
+
+.control-group{ class: ( !vm.errors[:name].empty? ? 'error' : '' ) }
+  %label.control-label{ for: 'gathering_name' }
+    Name
+  .controls
+    %input.span5{ type: 'text', id: 'gathering_name', name: 'gathering[name]', value: vm.gathering.name }
+    = errors(:name)
+
+.control-group{ class: ( !vm.errors[:description].empty?  ? 'error' : '' ) }
+  %label.control-label{ for: 'gathering_description' }
+    Description
+  .controls
+    %textarea.span5{ id: 'gathering_description', name: 'gathering[description]' }
+      = vm.gathering.description
+    = errors(:description)
+
+.control-group{ class: ( !vm.errors[:location].empty?  ? 'error' : '' ) }
+  %label.control-label{ for: 'location' }
+    Location
+  .controls
+    %input.span5{ type: 'text', id: 'location', name: 'gathering[location]', value: vm.gathering.location }
+    = errors(:location)
+

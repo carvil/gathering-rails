@@ -69,3 +69,11 @@ Turn.config do |c|
   # use humanized test names (works only with :outline format)
   c.natural = true
 end
+
+# Database cleaner.
+DatabaseCleaner.strategy = :truncation
+class MiniTest::Spec
+  before :each do
+    DatabaseCleaner.clean
+  end
+end
