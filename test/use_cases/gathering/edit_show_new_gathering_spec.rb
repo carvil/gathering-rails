@@ -36,7 +36,7 @@ describe GatheringUseCase do
   end
   
   describe "new" do
-    it "returns an empty Gathering instance" do
+    it "returns an new Gathering instance" do
       response = GatheringUseCase.new.new
       response.ok?.must_equal(true)
       response.gathering.must_be_instance_of(Gathering)

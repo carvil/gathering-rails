@@ -3,7 +3,7 @@ require 'test_helper'
 include UseCases
 
 describe GatheringUseCase do
-  describe "#create" do    
+  describe "create" do    
     def valid_attributes
       {
         :name => "Jane and John Doe Wedding",

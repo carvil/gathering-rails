@@ -3,7 +3,7 @@ require 'test_helper'
 include UseCases
 
 describe GatheringUseCase do
-  describe "#update" do
+  describe "update" do
     before :each do
       @gathering = Factory(:gathering)
     end

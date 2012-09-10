@@ -3,7 +3,7 @@ require 'test_helper'
 include UseCases
 
 describe GatheringUseCase do
-  describe "#list" do    
+  describe "list" do    
     it "returns all Gatherings that have been persisted" do
       gathering1 = Factory.create(:gathering)
       gathering2 = Factory.create(:gathering)
