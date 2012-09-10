@@ -1,74 +1,69 @@
 class GatheringsController < ApplicationController
+  include UseCases
   
   respond_to :html
   
+  def use(atts = {})
+    GatheringUseCase.new(atts)
+  end
+  
   def index
-    @vm = OpenStruct.new
-    @vm.gatherings = Gathering.all
+    # @vm = OpenStruct.new
+    # @vm.gatherings = Gathering.all
+    # respond_with @vm
+    @vm = use.list
     respond_with @vm
   end
 
   def show
-    @vm = OpenStruct.new
-    @vm.gathering = Gathering.find(params[:id])
+    @vm = use(:id => params[:id]).show
     respond_with @vm
   end
 
   def edit
-    @vm = OpenStruct.new
-    @vm.gathering = Gathering.find(params[:id])
+    @vm = use(:id => params[:id]).edit
     respond_with @vm
   end
 
   def new
-    @vm = OpenStruct.new
-    @vm.gathering = Gathering.new
+    @vm = use.new
     respond_with @vm
   end
 
   def create
-    @vm = OpenStruct.new
-    @vm.gathering = Gathering.new(params[:gathering])
-    success = @vm.gathering.save
-    @vm.errors = @vm.gathering.errors
-
+    @vm = use(:atts => params[:gathering]).create
     respond_with @vm do |format|
-      format.html do
-        if success
+      format.html { 
+        if @vm.ok?
           redirect_to gathering_path(@vm.gathering)
         else
           render 'new', :flash => "Error: Unable to save gathering"
         end
-      end
+      }
     end
     
   end
 
   def update
-    @vm = OpenStruct.new
-    @vm.gathering = Gathering.find(params[:id])
-    @vm.gathering.update_attributes(params[:gathering])
-    success = @vm.gathering.save
-    @vm.errors = @vm.gathering.errors
-    
+    @vm = use(:id => params[:id], :atts => params[:gathering]).update
     respond_with @vm do |format|
-      format.html do
-        if success
-          redirect_to gatherings_path
+      format.html { 
+        if @vm.ok?
+          redirect_to gathering_path(@vm.gathering)
         else
           render 'edit', :flash => "Error: Unable to save gathering"
         end
-      end
+      }
     end
   end
 
   def destroy
-    @vm = OpenStruct.new
-    @vm.gathering = Gathering.find(params[:id])
-    if @vm.gathering.destroy
-      flash[:flash] = "Content destroyed"
+    @vm = use(:id => params[:id]).destroy
+    
+    if @vm.ok?
+      flash[:flash] = "Gathering destroyed"
     else
-      flash[:flash] = "Content could not be destroyed."
+      flash[:flash] = "Gathering could not be destroyed."
     end
     
     respond_with @vm do |format|

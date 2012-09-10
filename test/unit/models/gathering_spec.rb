@@ -10,7 +10,7 @@ end
 
 describe Gathering do
   
-  describe "Gathering attributes" do
+  describe "Attributes" do
     it "has a name" do
       default_gathering.must_respond_to("name")
     end
@@ -22,7 +22,7 @@ describe Gathering do
     end
   end
   
-  describe "Gathering validity" do
+  describe "Validity" do
     it "is valid with valid attributes" do
       valid_gathering.valid?.must_equal(true)
     end

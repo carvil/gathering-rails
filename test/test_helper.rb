@@ -9,7 +9,7 @@ require 'action_controller/test_case'
 require 'miniskirt'
 require 'capybara/rails'
 require 'mocha'
-begin; require 'turn/autorun'; rescue LoadError; end
+#begin; require 'turn/autorun'; rescue LoadError; end
 
 # Support files
 Dir["#{File.expand_path(File.dirname(__FILE__))}/support/*.rb"].each do |file|
@@ -55,20 +55,20 @@ end
 MiniTest::Spec.register_spec_type( /Integration$/, AcceptanceSpec )
 
 
-Turn.config do |c|
-  # use one of output formats:
-  # :outline  - turn's original case/test outline mode [default]
-  # :progress - indicates progress with progress bar
-  # :dotted   - test/unit's traditional dot-progress mode
-  # :pretty   - new pretty reporter
-  # :marshal  - dump output as YAML (normal run mode only)
-  # :cue      - interactive testing
-  #c.format  = :cue
-  # turn on invoke/execute tracing, enable full backtrace
-  c.trace   = true
-  # use humanized test names (works only with :outline format)
-  c.natural = true
-end
+# Turn.config do |c|
+  # # use one of output formats:
+  # # :outline  - turn's original case/test outline mode [default]
+  # # :progress - indicates progress with progress bar
+  # # :dotted   - test/unit's traditional dot-progress mode
+  # # :pretty   - new pretty reporter
+  # # :marshal  - dump output as YAML (normal run mode only)
+  # # :cue      - interactive testing
+  # #c.format  = :cue
+  # # turn on invoke/execute tracing, enable full backtrace
+  # c.trace   = true
+  # # use humanized test names (works only with :outline format)
+  # c.natural = true
+# end
 
 # Database cleaner.
 DatabaseCleaner.strategy = :truncation
