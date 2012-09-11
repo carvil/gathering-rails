@@ -17,7 +17,13 @@ class GatheringsController < ApplicationController
 
   def show
     @vm = use(:id => params[:id]).show
-    respond_with @vm
+    respond_with @vm do |format|
+      format.html {
+        if @vm.errors
+          redirect_to gatherings_path  #, :flash => "Gathering with id #{params[:id]} does not exist." if @vm.errors[:record_not_found]
+        end
+      }
+    end
   end
 
   def edit

@@ -6,7 +6,7 @@ module ApplicationHelper
   end
 
   def errors(attribute)
-    return '' unless vm.errors && !vm.errors.blank?
+    return nil unless vm.errors && vm.errors[attribute].length > 0
     content_tag( 'span', class: 'help-inline' ) do
       vm.errors[attribute].join( '; ' )
     end

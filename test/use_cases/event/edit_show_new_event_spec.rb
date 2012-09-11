@@ -42,6 +42,16 @@ describe EventUseCase do
       response.event.must_be_instance_of(Event)
       response.event.persisted?.must_equal(false)
     end
+    
+    it "returns a new event instance with a populated gathering if a valid gathering is passed as part of the request" do
+      gathering = Factory.create(:gathering)
+      response = EventUseCase.new(:gathering => gathering).new
+      response.ok?.must_equal(true)
+      response.event.gathering.must_equal(gathering)
+      response = EventUseCase.new(:gathering_id => gathering.id).new
+      response.ok?.must_equal(true)
+      response.event.gathering.must_equal(gathering)
+    end
   end
 
 end

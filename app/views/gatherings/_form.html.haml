@@ -1,13 +1,11 @@
-=vm.errors
-=errors(:description)
-.control-group{ class: ( !errors(:name).empty? ? 'error' : '' ) }
+.control-group{ class: ( errors(:name) ? 'error' : '' ) }
   %label.control-label{ for: 'gathering_name' }
     Name
   .controls
     %input.span5{ type: 'text', id: 'gathering_name', name: 'gathering[name]', value: vm.gathering.name }
     = errors(:name)
 
-.control-group{ class: ( !errors(:description).empty? ? 'error' : '' ) }
+.control-group{ class: ( errors(:description) ? 'error' : '' ) }
   %label.control-label{ for: 'gathering_description' }
     Description
   .controls
@@ -15,7 +13,7 @@
       = vm.gathering.description
     = errors(:description)
 
-.control-group{ class: ( !errors(:location).empty? ? 'error' : '' ) }
+.control-group{ class: ( errors(:location) ? 'error' : '' ) }
   %label.control-label{ for: 'location' }
     Location
   .controls

@@ -64,6 +64,9 @@ module UseCases
     
     def new
       event = Event.new
+      if request.gathering or request.gathering_id
+        event.gathering = Gathering.find(request.gathering_id || request.gathering.id)
+      end
       Response.new(:event => event)
     end
     
