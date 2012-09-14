@@ -25,7 +25,13 @@ class EventsController < ApplicationController
 
   def edit
     @vm = use(:id => params[:id]).edit
-    respond_with @vm
+    respond_with @vm do |format|
+      format.html {
+        if @vm.errors
+          redirect_to events_path , :alert => "Event with id #{params[:id]} does not exist." if @vm.errors[:record_not_found]
+        end
+      }
+    end
   end
 
   def new

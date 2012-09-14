@@ -14,7 +14,6 @@ module UseCases
     end
     
     def update
-      errors = {}
       begin
         event = Event.find(request.id)
         
@@ -57,7 +56,19 @@ module UseCases
     end
     
     def edit
-      show
+      begin
+        event = Event.find(request.id)
+      rescue ActiveRecord::RecordNotFound => e
+        errors = {:record_not_found => e.message}
+      rescue => e
+        errors = {:unknown_exception => e}
+      end
+      
+      if event
+        Response.new(:event => event, :gatherings => Gathering.all)
+      else
+        Response.new(:event => nil, :gatherings => Gathering.all, :errors => errors)
+      end
     end
     
     def list
