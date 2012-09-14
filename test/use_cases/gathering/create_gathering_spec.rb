@@ -27,10 +27,10 @@ describe GatheringUseCase do
     it "returns errors if the create Gathering request is not valid" do
       response = GatheringUseCase.new(:atts => valid_attributes.merge(:name => "")).create
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
+      response.errors.must_include(:name)
       response = GatheringUseCase.new(:atts => valid_attributes.merge(:description => "")).create
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
+      response.errors.must_include(:description)
       response = GatheringUseCase.new(:atts => valid_attributes.merge(:location => "")).create
       response.ok?.must_equal(true)
       response.errors.must_be_nil

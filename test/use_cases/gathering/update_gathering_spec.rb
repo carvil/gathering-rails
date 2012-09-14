@@ -26,16 +26,16 @@ describe GatheringUseCase do
       gathering.location.must_equal(new_atts[:location])
     end
     
-    it "returns an error when passing a blank name" do
+    it "returns a name error when passing a blank name" do
       response = GatheringUseCase.new(:id => @gathering.id, :atts => new_attributes(:name => "")).update
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
+      response.errors.must_include(:name)
     end
     
     it "returns an error when passing a blank description" do
       response = GatheringUseCase.new(:id => @gathering.id, :atts => new_attributes(:description => "")).update
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
+      response.errors.must_include(:description)
     end
     
     it "returns no errors when passing a blank location" do

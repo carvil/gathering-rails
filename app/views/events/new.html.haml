@@ -1,10 +1,10 @@
-= form_for( vm.gathering, as: 'gathering', url: gatherings_path, :html => { class: 'form-horizontal' } ) do |f|
+= form_for( vm.event, :html => { class: 'form-horizontal'} ) do |f|
 
   %fieldset
     %legend
-      New Gathering
+      New Event
 
-    = render 'form', f: f
+    = render 'form', f: f, action: "new"
 
     .form-actions
       %button{ class: 'btn btn-primary', type: 'submit' }

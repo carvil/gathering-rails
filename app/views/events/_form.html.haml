@@ -1,0 +1,46 @@
+.control-group{ class: ( errors(:title) ? 'error' : '' ) }
+  %label.control-label{ for: 'event_title' }
+    Title
+  .controls
+    %input.span5{ type: 'text', id: 'event_title', name: 'event[title]', value: vm.event.title }
+      = vm.event.title
+    = errors(:title)
+
+.control-group{ class: ( errors(:description) ? 'error' : '' ) }
+  %label.control-label{ for: 'event_description' }
+    Description
+  .controls
+    %textarea.span5{ id: 'event_description', name: 'event[description]' }
+      = vm.event.description
+    = errors(:description)
+    
+.control-group{ class: ( errors(:gathering) ? 'error' : '' ) }
+  %label.control-label{ for: 'event_gathering' }
+    Gathering
+  .controls
+    = collection_select(:event, :gathering, vm.gatherings, :id, :name, prompt: true)
+    = errors(:gathering)
+
+.control-group{ class: ( errors(:location) ? 'error' : '' ) }
+  %label.control-label{ for: 'event_location' }
+    Location
+  .controls
+    %input.span5{ type: 'text', id: 'event_location', name: 'event[location]', value: vm.event.location }
+      = vm.event.location
+    = errors(:location)
+
+.control-group{ class: ( errors(:scheduled_date) ? 'error' : '' ) }
+  %label.control-label{ for: 'event_scheduled_date' }
+    Scheduled Date
+  .controls
+    %input.span5{ type: 'text', id: 'event_scheduled_date', name: 'event[scheduled_date]', value: vm.event.scheduled_date }
+    - #datetime_select(:event, :scheduled_date, :default => Date.today, :order => [:month, :day, :year], :start_year => Date.today.year, :end_year => Date.today.year + 3)
+    = errors(:scheduled_date)
+
+- if action == "edit"
+  .control-group{ class: ( errors(:cancelled_at) ? 'error' : '' ) }
+    %label.control-label{ for: 'event_cancelled_at' }
+      Cancelled?
+    .controls
+      %input.span5{ type: 'checkbox', id: 'event_cancelled_at', name: 'event[cancelled_at]', value: vm.event.cancelled_at }
+      = errors(:cancelled_at)

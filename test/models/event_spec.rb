@@ -67,8 +67,18 @@ describe Event do
     end
     it "is invalid if associated to a non-existent gathering" do
       event = valid_event
-      event.gathering_id = 0
+      event.gathering = Gathering.new
       event.valid?.must_equal(false)
+    end
+  end
+  
+  describe "Methods" do
+    it "is_cancelled? is a method that returns true if the attribute 'cancelled_at' is populated and false otherwise" do
+      event = default_event
+      event.must_respond_to("is_cancelled?")
+      event.is_cancelled?.must_equal(false)
+      event.cancelled_at = Time.new
+      event.is_cancelled?.must_equal(true)
     end
   end
   

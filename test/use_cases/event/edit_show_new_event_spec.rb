@@ -52,6 +52,31 @@ describe EventUseCase do
       response.ok?.must_equal(true)
       response.event.gathering.must_equal(gathering)
     end
+    
+    it "returns a listing of all gatherings available for association to the event" do
+      gathering1 = Factory.create(:gathering)
+      gathering2 = Factory.create(:gathering)
+      gathering3 = Factory.build(:gathering)
+      response = EventUseCase.new().new
+      response.ok?.must_equal(true)
+      response.gatherings.wont_be_nil
+      response.gatherings.must_include(gathering1)
+      response.gatherings.must_include(gathering2)
+      response.gatherings.wont_include(gathering3)
+    end
+    
+    it "returns a listing of all gatherings available for association to the event if a gathering is passed as part of the request" do
+      gathering1 = Factory.create(:gathering)
+      gathering2 = Factory.create(:gathering)
+      gathering3 = Factory.build(:gathering)
+      response = EventUseCase.new(:gathering => gathering1).new
+      response.ok?.must_equal(true)
+      response.gatherings.wont_be_nil
+      response.gatherings.must_include(gathering1)
+      response.gatherings.must_include(gathering2)
+      response.gatherings.wont_include(gathering3)
+    end
+    
   end
 
 end

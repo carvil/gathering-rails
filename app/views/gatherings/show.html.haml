@@ -1,15 +1,6 @@
 - @title = vm.gathering.name
 
-.gathering.row
-  .name.span4
-    %h4
-      = vm.gathering.name
-    = vm.gathering.location
-  .description.span6
-    = vm.gathering.description
-  .options.span2
-    = link_to( "edit", edit_gathering_path( vm.gathering ) )
-    = link_to( "delete", gathering_path( vm.gathering ), :method => :delete )
+= render :partial => "gathering", :collection => [vm.gathering], :locals => {:show_link => false}
 
 .options{ style: 'margin-top: 16px;' }
   = link_to( "Back to gathering list", gatherings_path, class: 'btn' )

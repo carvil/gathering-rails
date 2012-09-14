@@ -1,0 +1,13 @@
+.gathering.row-fluid{ style: 'padding-bottom: 8px;' }
+  .name.span4
+    %b= gathering.name
+    %i= "(#{gathering.location})"
+  .description.span6
+    = gathering.description
+  .options.span2
+    -if show_link
+      = link_to( "show", gathering_path( gathering ) )
+      |
+    = link_to( "edit", edit_gathering_path( gathering ) )
+    |
+    = link_to( "delete", gathering_path( gathering ), :method => :delete, :confirm => "Are you sure you want to delete this gathering?" )

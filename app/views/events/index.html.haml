@@ -1,0 +1,8 @@
+- @title = "#{vm.gathering || 'All'} events"
+
+.events
+  = render :partial => "event", :collection => vm.events, :locals => {:show_link => true}
+
+
+.options{ style: 'margin-top: 16px;' }
+  = link_to( "New Event", new_event_path, {:class => 'btn', :gathering => vm.gathering} )

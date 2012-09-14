@@ -1,7 +1,7 @@
 require 'test_helper'
 
 def valid_gathering
-  Factory.build(:gathering)
+  Factory.create(:gathering)
 end
 
 def default_gathering
@@ -19,6 +19,14 @@ describe Gathering do
     end
     it "has a location" do
       default_gathering.must_respond_to("location")
+    end
+    it "has a list of events associated to the gathering" do
+      default_gathering.must_respond_to("events")
+      gathering = valid_gathering
+      event1 = Factory.create(:event, :gathering => gathering)
+      event2 = Factory.create(:event, :gathering => gathering)
+      gathering.events.size.must_equal(2)
+      gathering.events.must_include(event1)
     end
   end
   

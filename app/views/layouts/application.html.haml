@@ -1,0 +1,22 @@
+!!!
+%html
+  %head
+    %title
+      = @title || "Gatherings"
+    = stylesheet_link_tag "application", media: "all"
+    = javascript_include_tag "application"
+    = csrf_meta_tags
+  %body
+    .container-fluid
+      .row-fluid
+        .span12
+          %h1= @title
+        .row-fluid
+          .span2
+            left sidebar
+          .span10
+            - if notice
+              %p.notice= notice
+            - if alert
+              %p.alert= alert
+            = yield

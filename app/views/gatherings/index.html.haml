@@ -1,18 +1,7 @@
 - @title = 'Known gatherings'
 
 .gatherings
-  - vm.gatherings.each do |gathering|
-    .gathering.row{ style: 'padding-top: 8px; padding-bottom: 8px;' }
-      .name.span4
-        %h4
-          = gathering.name
-        = gathering.location
-      .description.span6
-        = gathering.description
-      .options.span2
-        = link_to( "show", gathering_path( gathering ) )
-        = link_to( "edit", edit_gathering_path( gathering ) )
-        = link_to( "delete", gathering_path( gathering ), :method => :delete )
+  = render :partial => "gathering", :collection => vm.gatherings, :locals => {:show_link => true}
 
 .options{ style: 'margin-top: 16px;' }
   = link_to( "New gathering", new_gathering_path, class: 'btn' )

@@ -1,5 +1,6 @@
 GatheringRails::Application.routes.draw do
   resources :gatherings
+  resources :events
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

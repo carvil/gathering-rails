@@ -3,8 +3,8 @@ module UseCases
   class EventUseCase < UseCase
     
     def create
+      request.atts[:gathering] = Gathering.find(request.atts[:gathering]) if request.atts[:gathering].class != Gathering #TODO: refactor the tests to use gathering_id instead of gathering?
       event = Event.new(request.atts)
-      event.gathering = request.gathering
       
       if event.save
         Response.new(:event => event)
@@ -17,6 +17,14 @@ module UseCases
       errors = {}
       begin
         event = Event.find(request.id)
+        
+        # Catch the cancelled_at attribute and convert any non-zero/false/nil value into the current time
+        if !event.is_cancelled? && !request.atts[:cancelled_at].nil? && ![0, false].include?(request.atts[:cancelled_at])
+          request.atts[:cancelled_at] = Time.new
+        else
+          request.atts[:cancelled_at] = nil
+        end
+             
         event.update_attributes(request.atts)
         
         if event.save
@@ -58,8 +66,10 @@ module UseCases
     end
     
     def list_by_gathering
-      events = Event.where(:gathering_id => request.gathering.id)
-      Response.new(:events => events)
+      gathering_id = request.gathering_id || request.gathering.id
+      gathering = request.gathering ? request.gathering : Gathering.find(gathering_id)
+      events = Event.where(:gathering_id => gathering_id)
+      Response.new(:events => events, :gathering => gathering)
     end
     
     def new
@@ -67,7 +77,7 @@ module UseCases
       if request.gathering or request.gathering_id
         event.gathering = Gathering.find(request.gathering_id || request.gathering.id)
       end
-      Response.new(:event => event)
+      Response.new(:event => event, :gatherings => Gathering.all)
     end
     
     def destroy

@@ -1,0 +1,6 @@
+- @title = vm.event.title
+
+= render :partial => "event", :collection => [vm.event], :locals => {:show_link => false}
+
+.options{ style: 'margin-top: 16px;' }
+  = link_to( "Back to events list", events_path, {:class => 'btn', :gathering => vm.event.gathering} )

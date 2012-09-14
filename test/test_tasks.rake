@@ -1,8 +1,8 @@
 require 'rake/testtask'
 
-Rake::TestTask.new( 'test:unit' ) do |t|
+Rake::TestTask.new( 'test:models' ) do |t|
   t.libs << ['test']
-  t.test_files = FileList['test/unit/**/*_spec.rb']
+  t.test_files = FileList['test/models/**/*_spec.rb']
   t.verbose = false
 end
 

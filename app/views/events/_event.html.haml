@@ -1,0 +1,21 @@
+.event.row-fluid{ style: 'padding-bottom: 8px;' }
+  .span10
+    .row-fluid
+      .title.span3
+        %b= event.title
+      .description.span7
+        = event.description
+    .row-fluid
+      .date.span3
+        - if event.is_cancelled? 
+          = "Cancelled!"
+          .strike{style: 'text-decoration:line-through;'}= event.scheduled_at
+      .location.span5
+        = event.location
+  .options.span2
+    -if show_link
+      = link_to( "show", event_path( event ) )
+      |
+    = link_to( "edit", edit_event_path( event ) )
+    |
+    = link_to( "delete", event_path( event ), :method => :delete, :confirm => "Are you sure you want to delete this gathering?" )

@@ -12,7 +12,7 @@ gem "haml-rails", "0.3.5"
 
 # Gems only used for tests
 group :test do
-  gem "cucumber", "~> 1.2.1"
+  gem "cucumber-rails", "~> 1.3.0", :require => false
   gem "minitest", "~> 3.4.0"
   gem "miniskirt", "~> 1.2"
   gem "database_cleaner", "~> 0.8.0"
