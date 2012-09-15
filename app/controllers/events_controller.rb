@@ -61,7 +61,7 @@ class EventsController < ApplicationController
         if @vm.ok?
           redirect_to event_path(@vm.event)
         else
-          render 'edit', :flash => "Error: Unable to save event"
+          redirect_to events_path, :alert => "Error: Unable to save event"
         end
       }
     end
@@ -71,9 +71,9 @@ class EventsController < ApplicationController
     @vm = use(:id => params[:id]).destroy
     
     if @vm.ok?
-      flash[:flash] = "Event destroyed"
+      flash[:notice] = "Event destroyed"
     else
-      flash[:flash] = "Event could not be destroyed."
+      flash[:alert] = "Event could not be destroyed."
     end
     
     respond_with @vm do |format|

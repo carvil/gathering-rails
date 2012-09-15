@@ -26,7 +26,30 @@ describe EventUseCase do
       event.location.must_equal(atts[:location])
       event.scheduled_date.must_equal(Time.zone.parse(atts[:scheduled_date]))
       event.gathering.must_equal(atts[:gathering])
+    end
+    
+    it "successfully creates and persists a new Event when a gathering ID as a String is passed instead of a gathering object (like an HTML form submission)" do
+      atts = valid_attributes
+      gathering = atts[:gathering]
+      atts = atts.merge(:gathering => atts[:gathering].id.to_s)
+      response = EventUseCase.new(:atts => atts).create
       
+      response.ok?.must_equal(true)
+      event = response.event
+      event.id.wont_be_nil
+      event.gathering.must_equal(gathering)
+    end
+    
+    it "successfully creates and persists a new Event when a gathering ID as a Fixnum is passed instead of a gathering object" do
+      atts = valid_attributes
+      gathering = atts[:gathering]
+      atts = atts.merge(:gathering => atts[:gathering].id)
+      response = EventUseCase.new(:atts => atts).create
+      
+      response.ok?.must_equal(true)
+      event = response.event
+      event.id.wont_be_nil
+      event.gathering.must_equal(gathering)
     end
     
     it "returns errors if the create Event request is not valid" do

@@ -3,14 +3,22 @@ module UseCases
   class EventUseCase < UseCase
     
     def create
-      request.atts[:gathering] = Gathering.find(request.atts[:gathering]) if request.atts[:gathering].class != Gathering #TODO: refactor the tests to use gathering_id instead of gathering?
-      event = Event.new(request.atts)
-      
-      if event.save
-        Response.new(:event => event)
-      else
-        Response.new(:event => event, :errors => event.errors)
-      end
+      begin
+        # Catch the gathering value passed in as an ID and convert it to a Gathering object
+        if [String, Fixnum].include? request.atts[:gathering].class
+          request.atts[:gathering] = Gathering.find(request.atts[:gathering].to_i) if request.atts[:gathering].class == String
+          request.atts[:gathering] = Gathering.find(request.atts[:gathering]) if request.atts[:gathering].class == Fixnum
+        end
+        event = Event.new(request.atts)
+        
+        if event.save
+          Response.new(:event => event)
+        else
+          Response.new(:event => event, :errors => event.errors)
+        end
+      rescue Exception => e
+        Response.new(:event => nil, :errors => {:exception => e.message})
+      end 
     end
     
     def update
@@ -23,6 +31,12 @@ module UseCases
         else
           request.atts[:cancelled_at] = nil
         end
+        
+        # Catch the gathering value passed in as an ID and convert it to a Gathering object
+        if [String, Fixnum].include? request.atts[:gathering].class
+          request.atts[:gathering] = Gathering.find(request.atts[:gathering].to_i) if request.atts[:gathering].class == String
+          request.atts[:gathering] = Gathering.find(request.atts[:gathering]) if request.atts[:gathering].class == Fixnum
+        end
              
         event.update_attributes(request.atts)
         
@@ -33,9 +47,9 @@ module UseCases
         end
         
       rescue ActiveRecord::RecordNotFound => e
-        Response.new(:event => nil, errors => {:record_not_found => e.message})
+        Response.new(:event => nil, :errors => {:record_not_found => e.message})
       rescue => e
-        Response.new(errors = {:unknown_exception => e})
+        Response.new(:errors => {:unknown_exception => e})
       end
     end
     
