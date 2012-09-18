@@ -4,8 +4,12 @@ require 'test_helper'
 
 describe User do
   
-  before(:each) do
-    @attr = Factory.build(:user).attributes
+  def new_user(atts = {})
+    Factory.build(:user, atts)
+  end
+  
+  def create_user(atts = {})
+    Factory.create(:user, atts)
   end
   
   describe "Attributes" do
@@ -34,7 +38,7 @@ describe User do
     end
     
     it "returns false for is_active? if inactive date is populated and true if not" do
-      user = User.new(@attr)
+      user = new_user
       user.is_active?.must_equal(true)
       user.inactive_at = Time.new
       user.is_active?.must_equal(false)
@@ -45,48 +49,50 @@ describe User do
     end
   end
   
-  it "should create a new instance given a valid attribute" do
-    User.create!(@attr)
-  end
-  
-  it "should require an email address" do
-    no_email_user = User.new(@attr.merge(:email => ""))
-    no_email_user.valid?.must_equal(false)
-  end
-  
-  it "should accept valid email addresses" do
-    addresses = %w[user@foo.com THE_USER@foo.bar.org first.last@foo.jp]
-    addresses.each do |address|
-      valid_email_user = User.new(@attr.merge(:email => address))
-      valid_email_user.valid?.must_equal(true)
+  describe "Validity" do
+    it "should create a new instance given a valid attribute" do
+      user = create_user
+      user.id.wont_be_nil
+    end
+    
+    it "should require an email address" do
+      no_email_user = new_user(:email => "")
+      no_email_user.valid?.must_equal(false)
+    end
+    
+    it "should accept valid email addresses" do
+      addresses = %w[user@foo.com THE_USER@foo.bar.org first.last@foo.jp]
+      addresses.each do |address|
+        valid_email_user = new_user(:email => address)
+        valid_email_user.valid?.must_equal(true)
+      end
+    end
+    
+    it "should reject invalid email addresses" do
+      addresses = %w[user@foo,com user_at_foo.org example.user@foo. user@@example.com]
+      addresses.each do |address|
+        invalid_email_user = new_user(:email => address)
+        invalid_email_user.valid?.must_equal(false)
+      end
+    end
+    
+    it "should reject duplicate email addresses" do
+      user_orig = create_user
+      user_with_duplicate_email = new_user(:email => user_orig.email)
+      user_with_duplicate_email.valid?.must_equal(false)
+    end
+    
+    it "should reject email addresses identical up to case" do
+      user_orig = create_user
+      user_with_duplicate_email = new_user(:email => user_orig.email.upcase)
+      user_with_duplicate_email.valid?.must_equal(false)
     end
   end
   
-  it "should reject invalid email addresses" do
-    addresses = %w[user@foo,com user_at_foo.org example.user@foo. user@@example.com]
-    addresses.each do |address|
-      invalid_email_user = User.new(@attr.merge(:email => address))
-      invalid_email_user.valid?.must_equal(false)
-    end
-  end
-  
-  it "should reject duplicate email addresses" do
-    User.create!(@attr)
-    user_with_duplicate_email = User.new(@attr)
-    user_with_duplicate_email.valid?.must_equal(false)
-  end
-  
-  it "should reject email addresses identical up to case" do
-    upcased_email = @attr[:email].upcase
-    User.create!(@attr.merge(:email => upcased_email))
-    user_with_duplicate_email = User.new(@attr)
-    user_with_duplicate_email.valid?.must_equal(false)
-  end
-  
-  describe "passwords" do
+  describe "Passwords" do
 
     before(:each) do
-      @user = User.new(@attr)
+      @user = new_user
     end
 
     it "should have a password attribute" do
@@ -96,40 +102,43 @@ describe User do
     it "should have a password confirmation attribute" do
       @user.must_respond_to(:password_confirmation)
     end
+    
+    describe "Validations" do
+  
+      it "should require a password" do
+        new_user(:password => "", :password_confirmation => "").valid?.must_equal(false)
+      end
+  
+      it "should require a matching password confirmation" do
+        new_user(:password_confirmation => "invalid").valid?.must_equal(false)
+      end
+      
+      it "should reject short passwords" do
+        short = "a" * 5
+        new_user(:password => short, :password_confirmation => short).valid?.must_equal(false)
+      end
+      
+    end
+    
+    describe "Encryption" do
+      
+      # before(:each) do
+        # @user = create_user
+      # end
+      
+      it "should have an encrypted password attribute" do
+        @user.must_respond_to(:encrypted_password)
+      end
+  
+      it "should set the encrypted password attribute" do
+        @user.encrypted_password.wont_equal("")
+        @user.encrypted_password.wont_be_nil
+      end
+  
+    end
+    
   end
   
-  describe "password validations" do
 
-    it "should require a password" do
-      User.new(@attr.merge(:password => "", :password_confirmation => "")).valid?.must_equal(false)
-    end
-
-    it "should require a matching password confirmation" do
-      User.new(@attr.merge(:password_confirmation => "invalid")).valid?.must_equal(false)
-    end
-    
-    it "should reject short passwords" do
-      short = "a" * 5
-      hash = @attr.merge(:password => short, :password_confirmation => short)
-      User.new(hash).valid?.must_equal(false)
-    end
-    
-  end
-  
-  describe "password encryption" do
-    
-    before(:each) do
-      @user = User.create!(@attr)
-    end
-    
-    it "should have an encrypted password attribute" do
-      @user.must_respond_to(:encrypted_password)
-    end
-
-    it "should set the encrypted password attribute" do
-      @user.encrypted_password.wont_be_blank
-    end
-
-  end
 
 end

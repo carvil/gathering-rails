@@ -51,18 +51,15 @@ ActiveRecord::Schema.define(:version => 3) do
     t.string   "unlock_token"
     t.datetime "locked_at"
     t.string   "authentication_token"
-    t.string   "display_name"
-    t.string   "first_name"
-    t.string   "last_name"
     t.datetime "inactive_at"
+    t.string   "first_name",             :default => "", :null => false
+    t.string   "last_name"
+    t.string   "display_name"
     t.datetime "created_at",                             :null => false
     t.datetime "updated_at",                             :null => false
   end
 
-  add_index "users", ["authentication_token"], :name => "index_users_on_authentication_token", :unique => true
-  add_index "users", ["confirmation_token"], :name => "index_users_on_confirmation_token", :unique => true
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
-  add_index "users", ["unlock_token"], :name => "index_users_on_unlock_token", :unique => true
 
 end
