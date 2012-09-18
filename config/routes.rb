@@ -1,6 +1,10 @@
 GatheringRails::Application.routes.draw do
+  devise_for :users
+
   resources :gatherings
   resources :events
+
+  root :to => "pages#index"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

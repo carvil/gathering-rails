@@ -8,7 +8,10 @@ gem "rails", "3.2.8"
 gem "sqlite3"
 
 gem "haml", "~> 3.1.7"
-gem "haml-rails", "0.3.5"
+gem "haml-rails", "~> 0.3.5"
+gem "devise", "~> 2.1.2"
+gem "cancan", "~> 1.6.8"
+#gam "omniauth-facebook", "~> 1.4.1"
 
 # Gems only used for tests
 group :test do

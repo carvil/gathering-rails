@@ -58,6 +58,7 @@ module GatheringRails
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+    config.assets.initialize_on_precompile = false
     
     # Disabling the test generators as I'm using minitest and don't want the Test::Unit files auto-generated
     config.generators do |g|
