@@ -10,7 +10,11 @@ class User < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me
   attr_accessible :inactive_at, :first_name, :last_name, :display_name
   
-  validates :first_name, :presence => true
+  has_many :gathering_users
+  has_many :gatherings, :through => :gathering_users
+  has_many :events, :through => :user_events
+  
+  validates :first_name, :presence => true;
   
   def is_active?
     inactive_at.nil?

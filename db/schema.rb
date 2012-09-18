@@ -11,7 +11,16 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 3) do
+ActiveRecord::Schema.define(:version => 5) do
+
+  create_table "event_users", :force => true do |t|
+    t.integer  "user_id",     :null => false
+    t.integer  "event_id",    :null => false
+    t.datetime "inactive_at"
+    t.string   "role",        :null => false
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
 
   create_table "events", :force => true do |t|
     t.string   "title",          :null => false
@@ -22,6 +31,15 @@ ActiveRecord::Schema.define(:version => 3) do
     t.datetime "cancelled_at"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
+  end
+
+  create_table "gathering_users", :force => true do |t|
+    t.integer  "user_id",      :null => false
+    t.integer  "gathering_id", :null => false
+    t.datetime "inactive_at"
+    t.string   "role",         :null => false
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
   end
 
   create_table "gatherings", :force => true do |t|

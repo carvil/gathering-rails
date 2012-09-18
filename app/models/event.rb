@@ -1,5 +1,7 @@
 class Event < ActiveRecord::Base
   belongs_to :gathering
+  has_many :event_users
+  has_many :users, :through => :event_users
   attr_accessible :title, :description, :scheduled_date, :cancelled_at, :location, :gathering
   
   validates :title, :presence => true
@@ -9,7 +11,7 @@ class Event < ActiveRecord::Base
   validates :gathering_id, :presence => true
   validates :gathering, :associated => true
   
-  validates :title, :uniqueness => {:scope => :gathering_id, :message => "events on the same gathering should have different titles"}
+  validates :title, :uniqueness => {:scope => :gathering_id, :message => "events for the same gathering should have different titles"}
   
   # instance methods
   def is_cancelled?
