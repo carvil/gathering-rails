@@ -1,7 +1,6 @@
 class Event < ActiveRecord::Base
   belongs_to :gathering
-  has_many :event_users
-  has_many :users, :through => :event_users
+  #has_many :gathering_users, :through => :gathering
   attr_accessible :title, :description, :scheduled_date, :cancelled_at, :location, :gathering
   
   validates :title, :presence => true
