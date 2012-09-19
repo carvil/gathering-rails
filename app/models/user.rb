@@ -11,8 +11,9 @@ class User < ActiveRecord::Base
   attr_accessible :inactive_at, :first_name, :last_name, :display_name
   
   has_many :gathering_users
+  has_many :event_users
   has_many :gatherings, :through => :gathering_users
-  has_many :events, :through => :user_events
+  has_many :events, :through => :event_users
   
   validates :first_name, :presence => true;
   
