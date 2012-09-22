@@ -39,6 +39,17 @@ describe GatheringUser do
         new_gathering_user.must_respond_to("is_#{role_name}?")
       end
     end
+    it "has a single_owner? method that describes whether the gathering user is the only owner of a gathering" do
+      gathering_user_1 = valid_gathering_user
+      gathering_user_1.set_role_as_owner!
+      gathering_user_1.save
+      gathering_user_1.single_owner?.must_equal(true)
+      gathering_user_2 = valid_gathering_user
+      gathering_user_2.gathering = gathering_user_1.gathering
+      gathering_user_2.set_role_as_owner!
+      gathering_user_2.save
+      gathering_user_2.single_owner?.must_equal(false)
+    end
   end
   
   describe "Validity" do

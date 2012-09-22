@@ -117,9 +117,9 @@ module UseCases
         end
         
       rescue ActiveRecord::RecordNotFound => e
-        Response.new(:event => nil, errors => {:record_not_found => e.message})
+        Response.new(:event => nil, :errors => {:record_not_found => e.message})
       rescue => e
-        Response.new(errors => {:unknown_exception => e})
+        Response.new(:errors => {:unknown_exception => e})
       end
     end
     

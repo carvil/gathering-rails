@@ -8,10 +8,13 @@ module Roles
   # define a scope within the including model, create finder class-methods for each role, and define a method to return the list of configured roles
   def self.included(base)
     base.class_eval do
-      scope :with_role, lambda {|r| where(:role => r)}
+      #scope :with_role, lambda {|r| where(:role => r)}
       
       # metaprogramming that defines some simple finders on the class
       class << self
+        def with_role(role_name)
+          where(:role => role_name)
+        end
         ROLE_LIST.each do |role_name|
           # Finders
           define_method "all_#{role_name}s" do
