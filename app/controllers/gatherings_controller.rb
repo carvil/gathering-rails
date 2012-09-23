@@ -4,6 +4,8 @@ class GatheringsController < ApplicationController
   respond_to :html
   
   def use(atts = {})
+    atts.merge(:ability => current_ability)
+    atts.merge(:user => current_user)
     GatheringUseCase.new(atts)
   end
   
@@ -64,7 +66,7 @@ class GatheringsController < ApplicationController
   end
 
   def destroy
-    @vm = use(:id => params[:id]).destroy
+    @vm = use(:id => params[:id], :ability => current_ability).destroy
     
     if @vm.ok?
       flash[:flash] = "Gathering destroyed"

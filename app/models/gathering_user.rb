@@ -15,11 +15,14 @@ class GatheringUser < ActiveRecord::Base
   
   # helper class methods
   class << self
-    def with_gathering(gathering)
-      where(:gathering => gathering)
+    def active
+      where(:inactive_at => nil)
     end
-    def with_user(user)
-      where(:user => user)
+    def with_gathering(gathering_id)
+      where(:gathering_id => gathering_id)
+    end
+    def with_user(user_id)
+      where(:user_id => user_id)
     end
     def owners
       with_role(:owner)
@@ -36,6 +39,10 @@ class GatheringUser < ActiveRecord::Base
   def single_owner?
     # TODO: Kinda breaking law of demeter here
     is_owner? && self.gathering.gathering_users.owners.size == 1
+  end
+  
+  def is_active?
+    inactive_at.nil?
   end
   
 end

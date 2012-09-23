@@ -1,14 +1,28 @@
 
 module UseCases
   class GatheringUseCase < UseCase
-    
     def create
-      gathering = Gathering.new(request.atts)
+      begin
+        # By default we create a GatheringUser as owner whenever a new gathering is created
+        gathering = Gathering.new(request.atts)
+        user = request.user
+        role = :owner
       
-      if gathering.save
-        Response.new(:gathering => gathering)
-      else
-        Response.new(:gathering => gathering, :errors => gathering.errors)
+        if user.persisted? && gathering.save
+          response = GatheringUserUseCase.new(:atts => {:gathering => gathering, :user => user, :role => role}).create
+          if response.ok?
+            Response.new(:gathering => gathering)
+          else
+            gathering.destroy
+            Response.new(:gathering => gathering, :errors => response.gathering_user.errors)
+          end
+        else
+          Response.new(:gathering => gathering, :errors => gathering.errors)
+        end
+      rescue ActiveRecord::RecordNotFound => e
+        Response.new(:gathering => gathering, :errors => {:record_not_found => e.message})
+      rescue Exception => e
+        Response.new(:errors => {:unknown_exception => e})
       end
     end
     
@@ -64,6 +78,7 @@ module UseCases
     def destroy
       begin
         gathering = Gathering.find(request.id)
+        request.ability.authorize! :destroy, gathering
         
         if gathering.destroy
           Response.new(:gathering => gathering)
@@ -71,7 +86,8 @@ module UseCases
           errors.merge(gathering.errors)
           Response.new(:gathering => gathering, :errors => errors)
         end
-        
+      rescue CanCan::AccessDenied => e
+        Response.new(:gathering => gathering, :errors => {:access_denied => e.message}) #TODO: create a small module for handling error messages
       rescue ActiveRecord::RecordNotFound => e
         Response.new(:gathering => nil, :errors => {:record_not_found => e.message})
       rescue => e

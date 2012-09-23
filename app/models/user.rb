@@ -20,4 +20,7 @@ class User < ActiveRecord::Base
   def is_active?
     inactive_at.nil?
   end
+  def is_admin?
+    
+  end
 end

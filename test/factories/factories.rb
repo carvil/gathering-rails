@@ -16,8 +16,8 @@ Factory.define :event, :class => Event do |e|
 end
 
 Factory.define :user, :class => User do |u|
-  u.first_name "Test %d"
-  u.last_name "User %d"
+  u.first_name "Test%d"
+  u.last_name "User%d"
   u.display_name "%{first_name}"
   u.email "%{first_name}@gathering_rails.test"
   u.password u.password_confirmation('please')
