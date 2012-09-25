@@ -21,7 +21,7 @@ module Roles
             with_role(role_name)
           end
         end
-        define_method "role_list" do
+        def role_list
           ROLE_LIST
         end
       end
@@ -42,7 +42,7 @@ module Roles
     end
     # Instance Checkers
     define_method "is_#{role_name}?" do
-      role == role_name
+      self.role == role_name
     end
   end
   
