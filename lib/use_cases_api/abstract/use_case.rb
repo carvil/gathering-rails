@@ -18,7 +18,7 @@ module UseCases
     
     # helper method for responding from the use case, we always want to add any errors that were added so consolidating that here
     def respond_with(response_hash = {})
-      response_hash[:errors] = errors
+      response_hash[:errors].merge!(errors)  # Just in case there are errors loaded directly from the caller, we don't want to completely obliterate them
       Response.new(response_hash)
     end
   end

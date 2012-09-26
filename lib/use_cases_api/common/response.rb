@@ -5,7 +5,7 @@ module UseCases
   class Response < OpenStruct
 
     def ok?
-      !errors
+      errors.nil? || errors.empty?
     end
 
   end

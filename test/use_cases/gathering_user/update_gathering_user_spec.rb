@@ -1,6 +1,7 @@
 require 'test_helper'
+require_relative 'gathering_user_spec_helper'
 
-include UseCases
+include GatheringUserSpecHelper
 
 describe GatheringUserUseCase do
   describe "update" do
@@ -18,7 +19,7 @@ describe GatheringUserUseCase do
     
     it "updates a record when passed valid attributes" do
       new_atts = new_attributes
-      response = GatheringUserUseCase.new(:id => @gathering_user.id, :atts => new_atts).update
+      response = use(:id => @gathering_user.id, :atts => new_atts).update
       response.ok?.must_equal(true)
       gathering_user = GatheringUser.find(response.gathering_user.id)
       gathering_user.gathering.must_equal(new_atts[:gathering])
@@ -32,7 +33,7 @@ describe GatheringUserUseCase do
       user = atts[:user]
       atts = atts.merge(:gathering => atts[:gathering].id.to_s, :user => atts[:user].id.to_s)
       
-      response = GatheringUserUseCase.new(:id => @gathering_user.id, :atts => atts).update
+      response = use(:id => @gathering_user.id, :atts => atts).update
       
       response.ok?.must_equal(true)
       gathering_user = response.gathering_user
@@ -47,7 +48,7 @@ describe GatheringUserUseCase do
       user = atts[:user]
       atts = atts.merge(:gathering => atts[:gathering].id.to_s, :user => atts[:user].id.to_s)
       
-      response = GatheringUserUseCase.new(:id => @gathering_user.id, :atts => atts).update
+      response = use(:id => @gathering_user.id, :atts => atts).update
       
       response.ok?.must_equal(true)
       gathering_user = response.gathering_user
@@ -57,25 +58,25 @@ describe GatheringUserUseCase do
     end
     
     it "returns an error when passing a blank or non-existent gathering" do
-      response = GatheringUserUseCase.new(:id => @gathering_user.id, :atts => new_attributes(:gathering => nil)).update
+      response = use(:id => @gathering_user.id, :atts => new_attributes(:gathering => nil)).update
       response.ok?.must_equal(false)
       response.errors.must_include(:gathering_id)
-      response = GatheringUserUseCase.new(:id => @gathering_user.id, :atts => new_attributes(:gathering => Gathering.new)).update
+      response = use(:id => @gathering_user.id, :atts => new_attributes(:gathering => Gathering.new)).update
       response.ok?.must_equal(false)
       response.errors.must_include(:gathering_id)
     end
     
     it "returns an error when passing a blank or non-existent user" do
-      response = GatheringUserUseCase.new(:id => @gathering_user.id, :atts => new_attributes(:user => nil)).update
+      response = use(:id => @gathering_user.id, :atts => new_attributes(:user => nil)).update
       response.ok?.must_equal(false)
       response.errors.must_include(:user_id)
-      response = GatheringUserUseCase.new(:id => @gathering_user.id, :atts => new_attributes(:user => User.new)).update
+      response = use(:id => @gathering_user.id, :atts => new_attributes(:user => User.new)).update
       response.ok?.must_equal(false)
       response.errors.must_include(:user_id)
     end
     
     it "returns an error when passing a blank role" do
-      response = GatheringUserUseCase.new(:id => @gathering_user.id, :atts => new_attributes(:role => "")).update
+      response = use(:id => @gathering_user.id, :atts => new_attributes(:role => "")).update
       response.ok?.must_equal(false)
       response.errors.must_include(:role)
     end

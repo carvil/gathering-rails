@@ -29,6 +29,9 @@ describe GatheringUser do
     it "has a role" do
       new_gathering_user.must_respond_to(:role)
     end
+  end
+  
+  describe "Methods" do
     it "has a setter method for each role" do
       GatheringUser.role_list.each do |role_name|
         new_gathering_user.must_respond_to("set_role_as_#{role_name}!")
@@ -49,6 +52,18 @@ describe GatheringUser do
       gathering_user_2.set_role_as_owner!
       gathering_user_2.save
       gathering_user_2.single_owner?.must_equal(false)
+    end
+    it "has a find_by_gathering_and_user method that will return the gathering user record corresponding to the passed gathering and user ids" do
+      gathering_user1 = valid_gathering_user; gathering_user1.save;
+      gathering_user2 = valid_gathering_user; gathering_user2.save;
+      gathering_user3 = valid_gathering_user
+      gathering_user3.gathering_id = gathering_user2.gathering_id
+      gathering_user3.save
+      
+      GatheringUser.find_by_gathering_and_user(gathering_user1.gathering_id, gathering_user1.user_id).id.must_equal(gathering_user1.id)
+      GatheringUser.find_by_gathering_and_user(gathering_user2.gathering_id, gathering_user2.user_id).id.must_equal(gathering_user2.id)
+      GatheringUser.find_by_gathering_and_user(gathering_user3.gathering_id, gathering_user3.user_id).id.must_equal(gathering_user3.id)
+      GatheringUser.find_by_gathering_and_user(gathering_user1.gathering_id, gathering_user3.user_id).must_be_nil
     end
   end
   

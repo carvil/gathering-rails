@@ -25,29 +25,34 @@ describe GatheringUseCase do
       gathering.name.must_equal(valid_attributes[:name])
       gathering.description.must_equal(valid_attributes[:description])
       gathering.location.must_equal(valid_attributes[:location])
-      
     end
     
     it "successfully creates and persists a new Gathering User as owner when creating a new Gathering" do
       user = new_user
       response = GatheringUseCase.new(:atts => valid_attributes, :user => user).create
       response.ok?.must_equal(true)
-      GatheringUser.where(:gathering_id => response.gathering.id, :user_id => user.id).all.size.must_equal(1)
+      GatheringUser.find_by_gathering_and_user(response.gathering.id, user.id).wont_be_nil
     end
     
     it "returns errors if the create Gathering request is not valid" do
       user = new_user
       response = GatheringUseCase.new(:atts => valid_attributes.merge(:name => ""), :user => user).create
       response.ok?.must_equal(false)
-      response.errors.must_include(:name)
+      response.errors.must_include(:gathering_name)
       response = GatheringUseCase.new(:atts => valid_attributes.merge(:description => ""), :user => user).create
       response.ok?.must_equal(false)
-      response.errors.must_include(:description)
+      response.errors.must_include(:gathering_description)
       response = GatheringUseCase.new(:atts => valid_attributes.merge(:location => ""), :user => user).create
       response.ok?.must_equal(true)
-      response.errors.must_be_nil
+      response.errors.must_be_empty
+      # Tests for non-persisted user
       response = GatheringUseCase.new(:atts => valid_attributes, :user => User.new).create
       response.ok?.must_equal(false)
+      response.errors.must_include(:user_not_found)
+      user.destroy      
+      response = GatheringUseCase.new(:atts => valid_attributes, :user => user).create
+      response.ok?.must_equal(false)
+      response.errors.must_include(:user_not_found)
     end
     
     it "returns errors if creating Gathering with a duplicate name" do
@@ -55,7 +60,7 @@ describe GatheringUseCase do
       gathering_orig = GatheringUseCase.new(:atts => valid_attributes, :user => user).create.gathering
       response = GatheringUseCase.new(:atts => valid_attributes.merge(:name => gathering_orig.name), :user => user).create
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
+      response.errors.must_include(:gathering_name)
     end
   end
 end

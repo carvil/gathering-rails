@@ -1,5 +1,6 @@
 class GatheringUser < ActiveRecord::Base
-  attr_accessible :gathering_id, :inactive_at, :user_id, :role, :gathering, :user
+  attr_accessible :role
+  attr_protected :user, :user_id, :gathering, :gathering_id, :inactive_at
   
   belongs_to :user
   belongs_to :gathering
@@ -45,4 +46,7 @@ class GatheringUser < ActiveRecord::Base
     inactive_at.nil?
   end
   
+  def self.find_by_gathering_and_user(gathering_id, user_id)
+    with_gathering(gathering_id).with_user(user_id).first
+  end
 end

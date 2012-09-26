@@ -4,8 +4,8 @@ class GatheringsController < ApplicationController
   respond_to :html
   
   def use(atts = {})
-    atts.merge(:ability => current_ability)
-    atts.merge(:user => current_user)
+    atts.merge!(:ability => current_ability)
+    atts.merge!(:user => current_user)
     GatheringUseCase.new(atts)
   end
   
