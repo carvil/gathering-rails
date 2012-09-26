@@ -17,7 +17,7 @@ describe GatheringUserUseCase do
   
     it "successfully creates and persists a new Gathering User" do
       atts = valid_attributes
-      response = use(:atts => atts).create
+      response = use_gathering_user(:atts => atts, :user => atts[:user]).create
       
       response.ok?.must_equal(true)
       gathering_user = response.gathering_user
@@ -34,7 +34,7 @@ describe GatheringUserUseCase do
       user = atts[:user]
       atts = atts.merge(:gathering => atts[:gathering].id.to_s, :user => atts[:user].id.to_s)
       
-      response = use(:atts => atts).create
+      response = use_gathering_user(:atts => atts, :user => user).create
       
       response.ok?.must_equal(true)
       gathering_user = response.gathering_user
@@ -49,7 +49,7 @@ describe GatheringUserUseCase do
       user = atts[:user]
       atts = atts.merge(:gathering => atts[:gathering].id.to_s, :user => atts[:user].id.to_s)
       
-      response = use(:atts => atts).create
+      response = use_gathering_user(:atts => atts, :user => user).create
       
       response.ok?.must_equal(true)
       gathering_user = response.gathering_user
@@ -60,29 +60,30 @@ describe GatheringUserUseCase do
     
     it "returns errors if the create GatheringUser request is not valid" do
       atts = valid_attributes
-      response = use(:atts => atts.merge(:gathering => nil)).create
+      user = atts[:user]
+      response = use_gathering_user(:atts => atts.merge(:gathering => nil), :user => user).create
       response.ok?.must_equal(false)
       response.errors.must_include(:gathering_id)
-      response = use(:atts => atts.merge(:gathering => Gathering.new)).create
+      response = use_gathering_user(:atts => atts.merge(:gathering => Gathering.new), :user => user).create
       response.ok?.must_equal(false)
       response.errors.must_include(:gathering_id)
       
-      response = use(:atts => atts.merge(:user => nil)).create
+      response = use_gathering_user(:atts => atts.merge(:user => nil), :user => user).create
       response.ok?.must_equal(false)
       response.errors.must_include(:user_id)
-      response = use(:atts => atts.merge(:user => User.new)).create
+      response = use_gathering_user(:atts => atts.merge(:user => User.new), :user => user).create
       response.ok?.must_equal(false)
       response.errors.must_include(:user_id)
       
-      response = use(:atts => atts.merge(:role => "")).create
+      response = use_gathering_user(:atts => atts.merge(:role => ""), :user => user).create
       response.ok?.must_equal(false)
       response.errors.must_include(:role)
     end
     
     it "returns errors if creating two content user entries for the same user and gathering" do
       atts = valid_attributes
-      gathering_user_orig = use(:atts => atts).create.gathering_user
-      response = use(:atts => atts.merge(:role => 'contributor')).create
+      gathering_user_orig = use_gathering_user(:atts => atts, :user => atts[:user]).create.gathering_user
+      response = use_gathering_user(:atts => atts.merge(:role => 'contributor'), :user => atts[:user]).create
       response.ok?.must_equal(false)
       response.errors.wont_be_nil
     end

@@ -3,7 +3,7 @@
 # It also expects that you have set a ROLE_LIST constant in your object; if it has not been set it will default to the list specified below
 module Roles
   # Default role list if none is already specified
-  ROLE_LIST ||= %w[owner contributor reader] 
+  ROLE_LIST ||= %w[owner contributor reader]
 
   # define a scope within the including model, create finder class-methods for each role, and define a method to return the list of configured roles
   def self.included(base)
@@ -45,5 +45,5 @@ module Roles
       self.role == role_name
     end
   end
-  
+
 end

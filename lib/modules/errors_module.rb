@@ -7,7 +7,7 @@ module ErrorsModule
   end
   
   protected
-  def initialize_errors
+  def initialize_errors_module
     self.errors = {}
   end
   
@@ -23,11 +23,13 @@ module ErrorsModule
     add_error_to_hash(get_class_errors_hash(klass, errors_hash, location, action))
   end
   
+  # This method builds the hash record that add_error will add to the hash
   def get_error_hash(error, location, action, item, message)
     message = error_message(error, location, action, item) if message.nil?
     {error => ErrorItem.new(:location => location, :action => action, :item => item, :message => message)}
   end
   
+  # This method builds the class errors hash that add_class_errors_hash will push into the error module's hash
   def get_class_errors_hash(klass, errors_hash, location, action)
     # change a camel case class name to an underscore string
     prefix = klass.to_s.underscore << '_'

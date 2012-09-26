@@ -12,55 +12,49 @@ class Ability
     elsif user.is_admin?
       can :manage, :all
     else
-      # Gatherings & Events
-      # anyone can create a new gathering
-      can :create, Gathering
-      
-      # readers can read both gatherings and events
-      can :read, Gathering do |gathering|
-        #TODO: create custom finder method
-        gathering_user = GatheringUser.active.with_gathering(gathering.id).with_user(user.id).all.first
-        can :read, Event
-        gathering_user.is_reader?
-      end
-      
-      # contributors can do everything except destroy gatherings, and can manage events
-      can :manage_no_destroy do |gathering|
-        gathering_user = GatheringUser.active.with_gathering(gathering.id).with_user(user.id).all.first
-        can :manage, Event
-        gathering_user.is_contributor?
-      end
-      
-      # owners can manage both the gathering and the events
-      can :manage, Gathering do |gathering|
-        gathering_user = GatheringUser.with_gathering(gathering.id).with_user(user.id).all.first
-        can :manage, Event
-        gathering_user.is_owner?
-      end
-      
+      # Gatherings
+        # anyone can create a new gathering
+        can :create, Gathering
+        
+        # readers can read both gatherings and events
+        can :read, Gathering do |gathering|
+          gu = GatheringUser.find_by_gathering_and_user(gathering.id, user.id)
+          gu && gu.is_reader?
+        end
+        # contributors can do everything except destroy gatherings, and can manage events
+        can :manage_no_destroy, Gathering do |gathering|
+          gu = GatheringUser.find_by_gathering_and_user(gathering.id, user.id)
+          gu && gu.is_contributor?
+        end
+        # owners can manage both the gathering and the events
+        can :manage, Gathering do |gathering|
+          gu = GatheringUser.find_by_gathering_and_user(gathering.id, user.id)
+          gu && gu.is_owner?
+        end
+        
+      # GatheringUsers
+        # anyone can create a new gathering user if none are already associated to a gathering (This is to allow people to create themselves as owners automatically when first creating a gathering)
+        can :create, GatheringUser do |gathering_user|
+          GatheringUser.with_gathering(gathering_user.gathering_id).all.size == 0
+        end
+        can :read, GatheringUser do |gathering_user|
+          gu = GatheringUser.find_by_gathering_and_user(gathering_user.gathering_id, user.id)
+          gu && (gu.is_contributor? || gu.id == gathering_user.id)
+        end
+        can :manage, GatheringUser do |gathering_user|
+          gu = GatheringUser.find_by_gathering_and_user(gathering_user.gathering_id, user.id)
+          gu && gu.is_owner?
+        end
+        
+      # Events
+        can :read, Event do |event|
+          gu = GatheringUser.find_by_gathering_and_user(event.gathering_id, user.id)
+          gu && gu.is_reader?
+        end
+        can :manage, Event do |event|
+          gu = GatheringUser.find_by_gathering_and_user(event.gathering_id, user.id)
+          gu && (gu.is_owner? || gu.is_contributor?)
+        end
     end
-    
-    # Define abilities for the passed in user here. For example:
-    #
-    #   user ||= User.new # guest user (not logged in)
-    #   if user.admin?
-    #     can :manage, :all
-    #   else
-    #     can :read, :all
-    #   end
-    #
-    # The first argument to `can` is the action you are giving the user permission to do.
-    # If you pass :manage it will apply to every action. Other common actions here are
-    # :read, :create, :update and :destroy.
-    #
-    # The second argument is the resource the user can perform the action on. If you pass
-    # :all it will apply to every resource. Otherwise pass a Ruby class of the resource.
-    #
-    # The third argument is an optional hash of conditions to further filter the objects.
-    # For example, here the user can only update published articles.
-    #
-    #   can :update, Article, :published => true
-    #
-    # See the wiki for details: https://github.com/ryanb/cancan/wiki/Defining-Abilities
   end
 end

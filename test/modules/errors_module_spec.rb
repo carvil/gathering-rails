@@ -7,7 +7,7 @@ class ErrorModuleClass
   attr_accessor :errors
   
   def initialize
-    initialize_errors
+    initialize_errors_module
   end
   
   def add_error_public(error, location, action, item, message)
