@@ -9,6 +9,7 @@ describe GatheringUseCase do
       {
         :name => "Jane and John Doe Wedding",
         :description => "Jane and John Doe symbolically join their lives in the summer of 2013",
+        :scheduled_date => "6/1/2013 17:00",
         :location => "Anywhere, USA"
       }
     end
@@ -18,13 +19,15 @@ describe GatheringUseCase do
   
     it "successfully creates and persists a new Gathering" do
       user = new_user
-      response = use_gathering(:atts => valid_attributes, :user => user).create
+      atts = valid_attributes
+      response = use_gathering(:atts => atts, :user => user).create
       response.ok?.must_equal(true)
       gathering = response.gathering
       gathering.id.wont_be_nil
-      gathering.name.must_equal(valid_attributes[:name])
-      gathering.description.must_equal(valid_attributes[:description])
-      gathering.location.must_equal(valid_attributes[:location])
+      gathering.name.must_equal(atts[:name])
+      gathering.description.must_equal(atts[:description])
+      gathering.scheduled_date.must_equal(Time.zone.parse(atts[:scheduled_date]))
+      gathering.location.must_equal(atts[:location])
     end
     
     it "successfully creates and persists a new Gathering User as owner when creating a new Gathering" do
@@ -42,6 +45,9 @@ describe GatheringUseCase do
       response = use_gathering(:atts => valid_attributes.merge(:description => ""), :user => user).create
       response.ok?.must_equal(false)
       response.errors.must_include(:gathering_description)
+      response = use_gathering(:atts => valid_attributes.merge(:scheduled_date => nil), :user => user).create
+      response.ok?.must_equal(false)
+      response.errors.must_include(:gathering_scheduled_date)
       response = use_gathering(:atts => valid_attributes.merge(:location => ""), :user => user).create
       response.ok?.must_equal(true)
       response.errors.must_be_empty

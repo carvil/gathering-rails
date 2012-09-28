@@ -20,6 +20,9 @@ describe Gathering do
     it "has a location" do
       default_gathering.must_respond_to(:location)
     end
+    it "has a scheduled date" do
+      default_gathering.must_respond_to(:scheduled_date)
+    end
     it "has a list of events associated to the gathering" do
       default_gathering.must_respond_to(:events)
       gathering = valid_gathering
@@ -49,6 +52,11 @@ describe Gathering do
     it "is invalid without a description" do
       gathering = valid_gathering
       gathering.description = nil
+      gathering.valid?.must_equal(false)
+    end
+    it "is invalid without a scheduled date" do
+      gathering = valid_gathering
+      gathering.scheduled_date = nil
       gathering.valid?.must_equal(false)
     end
     it "is valid without a location" do

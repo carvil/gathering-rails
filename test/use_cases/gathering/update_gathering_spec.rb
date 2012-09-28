@@ -14,6 +14,7 @@ describe GatheringUseCase do
       {
         :name => "New Name",
         :description => "New Description",
+        :scheduled_date => "6/2/2013 17:00",
         :location => "New Location"
       }.merge(atts)
     end
@@ -25,6 +26,7 @@ describe GatheringUseCase do
       gathering = Gathering.find(response.gathering.id)
       gathering.name.must_equal(new_atts[:name])
       gathering.description.must_equal(new_atts[:description])
+      gathering.scheduled_date.must_equal(Time.zone.parse(new_atts[:scheduled_date]))
       gathering.location.must_equal(new_atts[:location])
     end
     

@@ -34,11 +34,12 @@ ActiveRecord::Schema.define(:version => 4) do
   end
 
   create_table "gatherings", :force => true do |t|
-    t.string   "name",        :null => false
-    t.string   "description", :null => false
+    t.string   "name",           :null => false
+    t.string   "description",    :null => false
+    t.datetime "scheduled_date", :null => false
     t.string   "location"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
 
   create_table "users", :force => true do |t|

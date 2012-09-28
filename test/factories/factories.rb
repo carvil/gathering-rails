@@ -3,6 +3,7 @@
 Factory.define :gathering, :class => Gathering do |g|
   g.name          "gathering %d"
   g.description   "%{name} description"
+  g.scheduled_date { Time.new }
   g.location      "somewhere out there %d"
 end
 
