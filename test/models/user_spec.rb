@@ -38,7 +38,7 @@ describe User do
     end
     
     it "returns false for is_active? if inactive date is populated and true if not" do
-      user = new_user
+      user = create_user
       user.is_active?.must_equal(true)
       user.inactive_at = Time.new
       user.is_active?.must_equal(false)

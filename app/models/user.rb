@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
   validates :first_name, :presence => true;
   
   def is_active?
-    inactive_at.nil?
+    inactive_at.nil? && persisted?
   end
   def is_admin?
     

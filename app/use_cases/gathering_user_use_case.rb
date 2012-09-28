@@ -20,15 +20,15 @@ module UseCases
         gathering_user.inactive_at = request.atts[:inactive_at]
         
         if request.ability.cannot? :create, gathering_user
-          add_error(:access_denied, :gathering_user_use_case, :create, :gathering_user, "The requesting user does not have sufficient permissions to create new gathering users")
+          add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
         elsif !gathering_user.save
-          add_class_errors_hash(gathering_user.class, gathering_user.errors.messages, :gathering_user_use_case, :create)
+          add_class_errors_hash(gathering_user.class, gathering_user.errors.messages, self_class_symbol, __method__)
         end
         
         respond_with(:gathering_user => gathering_user)
       rescue ActiveRecord::RecordNotFound => e
         item = (e.message.include?("Gathering") ? :gathering : :user)
-        add_error(:record_not_found, :gathering_user_use_case, :create, item, "The specified #{item} was not found.")
+        add_error(:record_not_found, self_class_symbol, __method__, item, "The specified #{item} was not found.")
         respond_with(:gathering_user => gathering_user)
       end 
     end
@@ -38,18 +38,18 @@ module UseCases
         gathering_user = GatheringUser.find(request.id)
         
         if request.ability.cannot? :update, gathering_user
-          add_error(:access_denied, :gathering_user_use_case, :update, :gathering_user, "The requesting user does not have sufficient permissions to update this gathering user.")
+          add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
         # Cannot update the last owner to anything other than owner
         elsif request.atts[:role] != gathering_user.role && gathering_user.single_owner?
-          add_error(:unable_to_remove_last_owner, :gathering_user_use_case, :update, :gathering_user, "Removing the last owner of a gathering is not permitted.  Create a new owner first and try again.")
+          add_error(:unable_to_remove_last_owner, self_class_symbol, __method__, :gathering_user, "Removing the last owner of a gathering is not permitted.  Create a new owner first and try again.")
         elsif !gathering_user.update_attributes(request.atts)
-          add_class_errors_hash(gathering_user.class, gathering_user.errors.messages, :gathering_user_use_case, :update)
+          add_class_errors_hash(gathering_user.class, gathering_user.errors.messages, self_class_symbol, __method__)
         end
         
         respond_with(:gathering_user => gathering_user)
         
       rescue ActiveRecord::RecordNotFound => e
-        add_error(:record_not_found, :gathering_user_use_case, :update, item, "The specified #{item} was not found.")
+        add_error(:record_not_found, self_class_symbol, __method__, item, "The specified #{item} was not found.")
         respond_with(:gathering_user => gathering_user)
       end
     end
@@ -58,13 +58,13 @@ module UseCases
       begin
         gathering_user = GatheringUser.find(request.id)
         if request.ability.cannot? :read, gathering_user
-          add_error(:access_denied, :gathering_user_use_case, :show, :gathering_user, "You do not have sufficient permission to read the specified gathering user")
+          add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
           gathering_user = nil
         end
         
         respond_with(:gathering_user => gathering_user)
       rescue ActiveRecord::RecordNotFound => e
-        add_error(:record_not_found, :gathering_user_use_case, :show, :gathering_user, e.message)
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering_user, e.message)
         respond_with(:gathering_user => nil)
       end
     end
@@ -73,13 +73,13 @@ module UseCases
       begin
         gathering_user = GatheringUser.find(request.id)
         if request.ability.cannot? :edit, gathering_user
-          add_error(:access_denied, :gathering_user_use_case, :show, :gathering_user, "You do not have sufficient permission to edit the specified gathering user")
+          add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
           gathering_user = nil
         end
         
         respond_with(:gathering_user => gathering_user)
       rescue ActiveRecord::RecordNotFound => e
-        add_error(:record_not_found, :gathering_user_use_case, :show, :gathering_user, e.message)
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering_user, e.message)
         respond_with(:gathering_user => nil)
       end
     end
@@ -87,7 +87,7 @@ module UseCases
     def list
       gathering_users = []
       if !request.user
-        add_error(:access_denied, :gathering_user_use_case, :list, :gathering_user, "You do not have sufficient permission to view gathering users")
+        add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
       else
         if request.gathering_id
           query = GatheringUser.with_gathering(request.gathering_id)
@@ -105,7 +105,12 @@ module UseCases
     end
     
     def new
-      respond_with(:gathering_user => GatheringUser.new)
+      gathering_user = GatheringUser.new
+      if request.ability.cannot? :create, gathering_user
+        gathering_user = nil
+        add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
+      end
+      respond_with(:gathering_user => gathering_user)
     end
     
     def destroy
@@ -113,11 +118,11 @@ module UseCases
         gathering_user = GatheringUser.find(request.id)
         
         if gathering_user.single_owner?
-          add_error(:unable_to_destroy_last_owner, :gathering_user_use_case, :destroy, :gathering_user, "Unable to destroy the only owner of a gathering, please make a new owner before attempting to delete the requested owner.")
+          add_error(:unable_to_destroy_last_owner, self_class_symbol, __method__, :gathering_user, "Unable to destroy the only owner of a gathering, please make a new owner before attempting to delete the requested owner.")
         elsif request.ability.cannot? :destroy, gathering_user
-          add_error(:access_denied, :gathering_user_use_case, :destroy, :gathering_user, "You do not have sufficient permission to destroy the specified gathering user.")
+          add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
         elsif !gathering_user.destroy
-          add_class_errors_hash(gathering_user.class, gathering_user.errors.messages, :gathering_user_use_case, :destroy)
+          add_class_errors_hash(gathering_user.class, gathering_user.errors.messages, self_class_symbol, :destroy)
         end
         
         # Verify whether we should return the gathering user if found
@@ -125,9 +130,14 @@ module UseCases
         
         respond_with(:gathering_user => gathering_user)
       rescue ActiveRecord::RecordNotFound => e
-        add_error(:record_not_found, :gathering_user_use_case, :destroy, :gathering_user, e.message)
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering_user, e.message)
         respond_with(:gathering_user => nil)
       end
+    end
+    
+    private
+    def access_denied_message(action)
+      "Requesting user does not have sufficient permission to #{action.to_s} a Gathering User"
     end
   end
 end

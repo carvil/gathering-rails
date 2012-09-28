@@ -3,11 +3,11 @@ class Ability
 
   def initialize(user)
     # setup action to do everything but delete
-    alias_action :index, :show, :edit, :update, :new, :create, :to => :manage_no_destroy
+    alias_action :read, :create, :update, :to => :manage_no_destroy
     
     user ||= User.new # guest user if not logged in
     
-    if !user.is_active?
+    if !user.is_active? || user.id.nil?
       #cannot do anything if the user is inactive (should never get this far but better safe than sorry...)
     elsif user.is_admin?
       can :manage, :all
@@ -47,6 +47,8 @@ class Ability
         end
         
       # Events
+        # TODO: Only allow users that are owners or contributors of at least one gathering make new events
+        can :new, Event
         can :read, Event do |event|
           gu = GatheringUser.find_by_gathering_and_user(event.gathering_id, user.id)
           gu && gu.is_reader?

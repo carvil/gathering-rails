@@ -1,9 +1,16 @@
 require 'test_helper'
+require_relative 'event_spec_helper'
 
-include UseCases
+include EventSpecHelper
 
 describe EventUseCase do
-  describe "create" do    
+  describe "create" do 
+    
+    before :each do
+      @atts = valid_attributes
+      @owner = Factory.create(:owner, :gathering => @atts[:gathering])
+    end
+    
     def valid_attributes
       {
         :title => "Main Ceremony",
@@ -15,69 +22,66 @@ describe EventUseCase do
     end
   
     it "successfully creates and persists a new Event" do
-      atts = valid_attributes
-      response = EventUseCase.new(:atts => atts).create
+      response = use_event(:atts => @atts, :user => @owner.user).create
       
       response.ok?.must_equal(true)
       event = response.event
       event.id.wont_be_nil
-      event.title.must_equal(atts[:title])
-      event.description.must_equal(atts[:description])
-      event.location.must_equal(atts[:location])
-      event.scheduled_date.must_equal(Time.zone.parse(atts[:scheduled_date]))
-      event.gathering.must_equal(atts[:gathering])
+      event.title.must_equal(@atts[:title])
+      event.description.must_equal(@atts[:description])
+      event.location.must_equal(@atts[:location])
+      event.scheduled_date.must_equal(Time.zone.parse(@atts[:scheduled_date]))
+      event.gathering.must_equal(@atts[:gathering])
     end
     
-    it "successfully creates and persists a new Event when a gathering ID as a String is passed instead of a gathering object (like an HTML form submission)" do
-      atts = valid_attributes
-      gathering = atts[:gathering]
-      atts = atts.merge(:gathering => atts[:gathering].id.to_s)
-      response = EventUseCase.new(:atts => atts).create
+    it "successfully creates and persists a new Event with a contributor user role" do
+      contributor = Factory.create(:contributor, :gathering => @owner.gathering)
+      
+      response = use_event(:atts => @atts, :user => contributor.user).create
       
       response.ok?.must_equal(true)
-      event = response.event
-      event.id.wont_be_nil
-      event.gathering.must_equal(gathering)
-    end
-    
-    it "successfully creates and persists a new Event when a gathering ID as a Fixnum is passed instead of a gathering object" do
-      atts = valid_attributes
-      gathering = atts[:gathering]
-      atts = atts.merge(:gathering => atts[:gathering].id)
-      response = EventUseCase.new(:atts => atts).create
-      
-      response.ok?.must_equal(true)
-      event = response.event
-      event.id.wont_be_nil
-      event.gathering.must_equal(gathering)
+      response.errors.must_be_empty
     end
     
     it "returns errors if the create Event request is not valid" do
-      response = EventUseCase.new(:atts => valid_attributes.merge(:title => "")).create
+      response = use_event(:atts => @atts.merge(:title => ""), :user => @owner.user).create
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
-      response = EventUseCase.new(:atts => valid_attributes.merge(:description => "")).create
+      response.errors.must_include(:event_title)
+      response = use_event(:atts => @atts.merge(:description => ""), :user => @owner.user).create
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
-      response = EventUseCase.new(:atts => valid_attributes.merge(:location => "")).create
+      response.errors.must_include(:event_description)
+      response = use_event(:atts => @atts.merge(:location => ""), :user => @owner.user).create
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
-      response = EventUseCase.new(:atts => valid_attributes.merge(:scheduled_date => "")).create
+      response.errors.must_include(:event_location)
+      response = use_event(:atts => @atts.merge(:scheduled_date => ""), :user => @owner.user).create
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
-      response = EventUseCase.new(:atts => valid_attributes.merge(:gathering => nil)).create
+      response.errors.must_include(:event_scheduled_date)
+      response = use_event(:atts => @atts.merge(:gathering => nil), :user => @owner.user).create
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
-      response = EventUseCase.new(:atts => valid_attributes.merge(:cancelled_at => "")).create
+      response.errors.must_include(:access_denied)
+      response = use_event(:atts => @atts.merge(:cancelled_at => ""), :user => @owner.user).create
       response.ok?.must_equal(true)
-      response.errors.must_be_nil
+      response.errors.must_be_empty
     end
     
     it "returns errors if creating an event with a duplicate title and the same gathering" do
-      event_orig = EventUseCase.new(:atts => valid_attributes).create.event
-      response = EventUseCase.new(:atts => valid_attributes.merge(:title => event_orig.title, :gathering => event_orig.gathering)).create
+      event_orig = use_event(:atts => @atts, :user => @owner.user).create.event
+      
+      response = use_event(:atts => @atts.merge(:title => event_orig.title, :gathering => event_orig.gathering), :user => @owner.user).create
+      
       response.ok?.must_equal(false)
-      response.errors.wont_be_nil
+      response.errors.must_include(:event_title)
+    end
+    
+    it "returns an error if the requesting user does not have permission to create an event" do
+      reader = Factory.create(:reader, :gathering => @owner.gathering)
+      
+      response = use_event(:atts => @atts, :user => reader.user).create
+      response.ok?.must_equal(false)
+      response.errors.must_include(:access_denied)
+      response = use_event(:atts => @atts, :user => User.new).create
+      response.ok?.must_equal(false)
+      response.errors.must_include(:access_denied)
     end
   end
 end

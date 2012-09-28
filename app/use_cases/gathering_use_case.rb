@@ -8,21 +8,18 @@ module UseCases
       role = "owner"
       
       # This conditional walks through each step and if it encounters an error will add that to the error list
-      if !user.persisted?
-        add_error(:record_not_found, :gathering_use_case, :create, :user, :message => "Requesting user does not currently exist.  Either it was never created or has been removed.")
-      elsif request.ability.cannot? :create, gathering
-        add_error(:access_denied, :gathering_use_case, :create, :gathering, :message => "Requesting user does not have sufficient permission to create a Gathering")
+      if request.ability.cannot? :create, gathering
+        add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(__method__))
       elsif gathering.save
         response = GatheringUserUseCase.new(:atts => {:gathering => gathering, :user => user, :role => role}, :ability => request.ability, :user => request.user).create
         if !response.ok? || !response.gathering_user.persisted?
           # If the gathering user wasn't created we MUST destroy the gathering or or it will be orphaned.  This should never happen but better safe than sorry.
           gathering.destroy
-          
           # Add the overall error from the perspective of the gathering
-          add_error(:gathering_user, :gathering_use_case, :create, :gathering_user, :message => "Unable to create a GatheringUser, the gathering was not saved.")
+          add_error(:gathering_user, self_class_symbol, __method__, :gathering_user, :message => "Unable to create a GatheringUser, the gathering was not saved.")
         end
       else
-        add_class_errors_hash(gathering.class, gathering.errors.messages, :gathering_use_case, :create)
+        add_class_errors_hash(gathering.class, gathering.errors.messages, self_class_symbol, __method__)
       end
       
       # If we didn't trigger an exception then we respond here
@@ -33,67 +30,85 @@ module UseCases
       begin
         gathering = Gathering.find(request.id)
         gathering.update_attributes(request.atts)
-        
-        if gathering.save
-          Response.new(:gathering => gathering)
-        else
-          Response.new(:gathering => gathering, :errors => gathering.errors)
+        if request.ability.cannot? :update, gathering
+          add_error(:access_denied, self_class_symbol, :update, :gathering, :message => access_denied_message(__method__))
+        elsif !gathering.save
+          add_class_errors_hash(gathering.class, gathering.errors.messages, self_class_symbol, __method__)
         end
         
+        respond_with(:gathering => gathering)
       rescue ActiveRecord::RecordNotFound => e
-        Response.new(:gathering => nil, :errors => {:record_not_found => e.message})
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering, e.message)
+        respond_with(:gathering => nil)
       end
     end
     
     def show
       begin
         gathering = Gathering.find(request.id)
+        if request.ability.cannot? :show, gathering
+          add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(__method__))
+        end
+        
+        respond_with(:gathering => gathering)
       rescue ActiveRecord::RecordNotFound => e
-        errors = {:record_not_found => e.message}
-      rescue => e
-        errors = {:unknown_exception => e}
-      end
-      
-      if gathering
-        Response.new(:gathering => gathering)
-      else
-        Response.new(:gathering => nil, :errors => errors)
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering, e.message)
+        respond_with(:gathering => nil)
       end
     end
     
     def edit
-      show
+      begin
+        gathering = Gathering.find(request.id)
+        if request.ability.cannot? :edit, gathering
+          add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(__method__))
+        end
+        
+        respond_with(:gathering => gathering)
+      rescue ActiveRecord::RecordNotFound => e
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering, e.message)
+        respond_with(:gathering => nil)
+      end
     end
     
     def list
-      gatherings = Gathering.all
-      Response.new(:gatherings => gatherings)
+      # Pull all of the gathering instances that have the requesting user associated
+      gatherings = []
+      Gathering.with_user(request.user.id).each do |gathering|
+        gatherings << gathering if request.ability.can? :read, gathering
+      end
+      
+      respond_with(:gatherings => gatherings)
     end
     
     def new
       gathering = Gathering.new
-      Response.new(:gathering => gathering)
+      if request.ability.cannot? :create, gathering
+        add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(:create))
+        gathering = nil
+      end
+      respond_with(:gathering => gathering)
     end
     
     def destroy
       begin
         gathering = Gathering.find(request.id)
-        
-        
         if request.ability.cannot? :destroy, gathering
-          add_error(:access_denied, :gathering_use_case, :destroy, :gathering, "User does not have permission to destroy the specified gathering.")
-          respond_with(:gathering => nil)
-        elsif gathering.destroy
-          respond_with(:gathering => gathering)
-        else
-          add_class_errors_hash(gathering.class, gathering.errors.messages, :gathering_use_case, :destroy)
-          respond_with(:gathering => gathering)
+          add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(__method__))
+          gathering = nil
+        elsif !gathering.destroy
+          add_class_errors_hash(gathering.class, gathering.errors.messages, self_class_symbol, __method__)
         end
+        respond_with(:gathering => gathering)
       rescue ActiveRecord::RecordNotFound => e
-        add_error(:record_not_found, :gathering_use_case, :destroy, :gathering, "Gathering with id of #{request.id} could not be found.")
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering, "Gathering with id of #{request.id} could not be found.")
         respond_with(:gathering => nil)
       end
     end
     
+    private
+    def access_denied_message(action)
+      "Requesting user does not have sufficient permission to #{action.to_s} a Gathering"
+    end
   end
 end

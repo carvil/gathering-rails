@@ -19,7 +19,6 @@ describe GatheringUseCase do
     it "successfully creates and persists a new Gathering" do
       user = new_user
       response = use_gathering(:atts => valid_attributes, :user => user).create
-      #puts response.errors
       response.ok?.must_equal(true)
       gathering = response.gathering
       gathering.id.wont_be_nil
@@ -46,16 +45,6 @@ describe GatheringUseCase do
       response = use_gathering(:atts => valid_attributes.merge(:location => ""), :user => user).create
       response.ok?.must_equal(true)
       response.errors.must_be_empty
-      # Tests for non-persisted user
-      response = use_gathering(:atts => valid_attributes, :user => User.new).create
-      response.ok?.must_equal(false)
-      response.errors.must_include(:record_not_found)
-      response.errors[:record_not_found].item.must_equal(:user)
-      user.destroy      
-      response = use_gathering(:atts => valid_attributes, :user => user).create
-      response.ok?.must_equal(false)
-      response.errors.must_include(:record_not_found)
-      response.errors[:record_not_found].item.must_equal(:user)
     end
     
     it "returns errors if creating Gathering with a duplicate name" do
@@ -64,6 +53,18 @@ describe GatheringUseCase do
       response = use_gathering(:atts => valid_attributes.merge(:name => gathering_orig.name), :user => user).create
       response.ok?.must_equal(false)
       response.errors.must_include(:gathering_name)
+    end
+    
+    it "returns an error if the requesting user does not have permission (in this case if the user does not exist or is not persisted)" do
+      response = use_gathering(:atts => valid_attributes, :user => User.new).create
+      response.ok?.must_equal(false)
+      response.errors.must_include(:access_denied)
+      
+      user = new_user
+      user.destroy      
+      response = use_gathering(:atts => valid_attributes, :user => user).create
+      response.ok?.must_equal(false)
+      response.errors.must_include(:access_denied)
     end
   end
 end

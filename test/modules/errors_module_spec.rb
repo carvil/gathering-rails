@@ -50,7 +50,7 @@ describe ErrorsModule do
       @error_class.errors[err_key].message.must_equal(err[:message])
     end
     
-    it "has an add_active_record_errors method that accepts an ActiveModel::Errors class and adds each message to the errors hash with a key of <base class>_<am field>" do
+    it "has an add_class_errors_hash method that accepts a class and a hash of errors and adds each message to the errors hash with a key of <class name>_<error attribute>" do
       gathering = Gathering.new
       gathering.save
       err = error_parms

@@ -1,7 +1,8 @@
 class Event < ActiveRecord::Base
   belongs_to :gathering
-  #has_many :gathering_users, :through => :gathering
-  attr_accessible :title, :description, :scheduled_date, :cancelled_at, :location, :gathering
+  has_many :gathering_users, :through => :gathering
+  attr_accessible :title, :description, :scheduled_date, :cancelled_at, :location
+  attr_protected :gathering, :gathering_id
   
   validates :title, :presence => true
   validates :description, :presence => true
@@ -15,5 +16,9 @@ class Event < ActiveRecord::Base
   # instance methods
   def is_cancelled?
     !cancelled_at.nil?
+  end
+  
+  def self.with_user(user_id)
+    joins(:gathering_users).where(:gathering_users => {:user_id => user_id})
   end
 end

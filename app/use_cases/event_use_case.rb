@@ -9,15 +9,21 @@ module UseCases
           request.atts[:gathering] = Gathering.find(request.atts[:gathering].to_i) if request.atts[:gathering].class == String
           request.atts[:gathering] = Gathering.find(request.atts[:gathering]) if request.atts[:gathering].class == Fixnum
         end
-        event = Event.new(request.atts)
+        atts = request.atts.dup
+        gathering = atts.delete(:gathering)
+        event = Event.new(atts)
+        event.gathering = gathering
         
-        if event.save
-          Response.new(:event => event)
-        else
-          Response.new(:event => event, :errors => event.errors)
+        if request.ability.cannot? :create, event
+          add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
+        elsif !event.save
+          add_class_errors_hash(event.class, event.errors.messages, self_class_symbol, __method__)
         end
-      rescue Exception => e
-        Response.new(:event => nil, :errors => {:exception => e.message})
+        
+        respond_with(:event => event)
+      rescue ActiveRecord::RecordNotFound => e
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering, e.message)
+        respond_with(:event => nil)
       end 
     end
     
@@ -33,95 +39,117 @@ module UseCases
         end
         
         # Catch the gathering value passed in as an ID and convert it to a Gathering object
-        if [String, Fixnum].include? request.atts[:gathering].class
-          request.atts[:gathering] = Gathering.find(request.atts[:gathering].to_i) if request.atts[:gathering].class == String
-          request.atts[:gathering] = Gathering.find(request.atts[:gathering]) if request.atts[:gathering].class == Fixnum
-        end
+        request.atts.delete(:gathering)
              
-        event.update_attributes(request.atts)
-        
-        if event.save
-          Response.new(:event => event)
-        else
-          Response.new(:event => event, :errors => event.errors)
+        if request.ability.cannot? :update, event
+          add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
+        elsif !event.update_attributes(request.atts)
+          add_class_errors_hash(event.class, event.errors.messages, self_class_symbol, __method__)
         end
         
+        respond_with(:event => event)
       rescue ActiveRecord::RecordNotFound => e
-        Response.new(:event => nil, :errors => {:record_not_found => e.message})
-      rescue => e
-        Response.new(:errors => {:unknown_exception => e})
+        add_error(:record_not_found, self_class_symbol, __method__, :event, e.message)
+        respond_with(:event => nil)
       end
     end
     
     def show
       begin
         event = Event.find(request.id)
+        
+        if request.ability.cannot? :read, event
+          add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
+        end
+        
+        respond_with(:event => event)
+        
       rescue ActiveRecord::RecordNotFound => e
-        errors = {:record_not_found => e.message}
-      rescue => e
-        errors = {:unknown_exception => e}
-      end
-      
-      if event
-        Response.new(:event => event)
-      else
-        Response.new(:event => nil, :errors => errors)
+        add_error(:record_not_found, self_class_symbol, __method__, :event,  e.message)
+        respond_with(:event => nil)
       end
     end
     
     def edit
       begin
         event = Event.find(request.id)
+        
+        if request.ability.cannot? :edit, event
+          add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
+        end
+        
+        respond_with(:event => event)
+        
       rescue ActiveRecord::RecordNotFound => e
-        errors = {:record_not_found => e.message}
-      rescue => e
-        errors = {:unknown_exception => e}
-      end
-      
-      if event
-        Response.new(:event => event, :gatherings => Gathering.all)
-      else
-        Response.new(:event => nil, :gatherings => Gathering.all, :errors => errors)
+        add_error(:record_not_found, self_class_symbol, __method__, :event,  e.message)
+        respond_with(:event => nil)
       end
     end
     
     def list
-      events = Event.all
-      Response.new(:events => events)
+      events = [] 
+      
+      Event.with_user(request.user.id).all.each do |event|
+        events << event if request.ability.can? :index, event
+      end
+      
+      respond_with(:events => events)
     end
     
     def list_by_gathering
+      events = []
       gathering_id = request.gathering_id || request.gathering.id
-      gathering = request.gathering ? request.gathering : Gathering.find(gathering_id)
-      events = Event.where(:gathering_id => gathering_id)
-      Response.new(:events => events, :gathering => gathering)
+      gathering = request.gathering || Gathering.find(gathering_id)
+      
+      Event.with_user(request.user.id).where(:gathering_id => gathering_id).all.each do |event|
+        events << event if request.ability.can? :index, event
+      end
+      
+      respond_with(:events => events, :gathering => gathering)
     end
     
     def new
-      event = Event.new
-      if request.gathering or request.gathering_id
-        event.gathering = Gathering.find(request.gathering_id || request.gathering.id)
+      begin
+        event = Event.new
+        # TODO: Restrict this list to only those gatherings the requesting user can create events against
+        gatherings = Gathering.with_user(request.user.id)
+        
+        if request.gathering || request.gathering_id
+          event.gathering = Gathering.find(request.gathering_id || request.gathering.id)
+        end
+        
+        if request.ability.cannot? :new, event
+          add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
+          event = nil
+        end
+        
+        respond_with(:event => event, :gatherings => gatherings)
+      rescue ActiveRecord::RecordNotFound => e
+        add_error(:record_not_found, self_class_symbol, __method__, :gathering, e.message)
+        respond_with(:event => nil)
       end
-      Response.new(:event => event, :gatherings => Gathering.all)
     end
     
     def destroy
       begin
         event = Event.find(request.id)
         
-        if event.destroy
-          Response.new(:event => event)
-        else
-          errors.merge(event.errors)
-          Response.new(:event => event, :errors => errors)
+        if request.ability.cannot? :destroy, event
+          add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
+        elsif !event.save 
+          add_class_errors_hash(event.class, event.errors.messages, self_class_symbol, __method__)
         end
         
+        respond_with(:event => event)
       rescue ActiveRecord::RecordNotFound => e
-        Response.new(:event => nil, :errors => {:record_not_found => e.message})
-      rescue => e
-        Response.new(:errors => {:unknown_exception => e})
+        add_error(:record_not_found, self_class_symbol, __method__, :event, e.message)
+        respond_with(:event => nil)
       end
     end
-    
+   
+    private
+    def access_denied_message(action)
+      "Requesting user does not have sufficient permission to #{action.to_s} a Gathering"
+    end 
   end
 end

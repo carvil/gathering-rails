@@ -7,7 +7,6 @@ module UseCases
 
     # This works because we're in Rails, so AR automatically is visible everywhere; otherwise we'd need to require and include active_model and active_attr
     attr_accessor :request, :errors
-    #attr_reader :errors # errors is a hash in ErrorsModule that we want to be accessible to any use cases
 
     def initialize(request_or_hash = { })
       if request_or_hash.is_a?(Hash)
@@ -19,6 +18,7 @@ module UseCases
       initialize_errors_module
     end
     
+    private
     # helper method for responding from the use case, we always want to add any errors that were added so consolidating that here
     def respond_with(response_hash = {})
       if response_hash[:errors]
@@ -28,6 +28,11 @@ module UseCases
       end
       
       Response.new(response_hash)
+    end
+    
+    # helper method to return a symbol representation of the current class for help with adding new errors and tracking
+    def self_class_symbol
+      self.class.to_s.underscore.to_sym
     end
   end
 
