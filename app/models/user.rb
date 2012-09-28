@@ -5,6 +5,9 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
          :token_authenticatable, :confirmable, :lockable
+         
+  # Delegate the can? and cannot? calls to the ability method
+  delegate :can?, :cannot?, :to => :ability
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me
@@ -20,7 +23,12 @@ class User < ActiveRecord::Base
   def is_active?
     inactive_at.nil? && persisted?
   end
+  
   def is_admin?
-    
+    false
+  end
+  
+  def ability
+    @ability ||= Ability.new(self)
   end
 end

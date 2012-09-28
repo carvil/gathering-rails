@@ -14,7 +14,7 @@ module UseCases
         event = Event.new(atts)
         event.gathering = gathering
         
-        if request.ability.cannot? :create, event
+        if @ability.cannot? :create, event
           add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
         elsif !event.save
           add_class_errors_hash(event.class, event.errors.messages, self_class_symbol, __method__)
@@ -41,7 +41,7 @@ module UseCases
         # Catch the gathering value passed in as an ID and convert it to a Gathering object
         request.atts.delete(:gathering)
              
-        if request.ability.cannot? :update, event
+        if @ability.cannot? :update, event
           add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
         elsif !event.update_attributes(request.atts)
           add_class_errors_hash(event.class, event.errors.messages, self_class_symbol, __method__)
@@ -58,7 +58,7 @@ module UseCases
       begin
         event = Event.find(request.id)
         
-        if request.ability.cannot? :read, event
+        if @ability.cannot? :read, event
           add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
         end
         
@@ -74,7 +74,7 @@ module UseCases
       begin
         event = Event.find(request.id)
         
-        if request.ability.cannot? :edit, event
+        if @ability.cannot? :edit, event
           add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
         end
         
@@ -90,7 +90,7 @@ module UseCases
       events = [] 
       
       Event.with_user(request.user.id).all.each do |event|
-        events << event if request.ability.can? :index, event
+        events << event if @ability.can? :index, event
       end
       
       respond_with(:events => events)
@@ -102,7 +102,7 @@ module UseCases
       gathering = request.gathering || Gathering.find(gathering_id)
       
       Event.with_user(request.user.id).where(:gathering_id => gathering_id).all.each do |event|
-        events << event if request.ability.can? :index, event
+        events << event if @ability.can? :index, event
       end
       
       respond_with(:events => events, :gathering => gathering)
@@ -118,7 +118,7 @@ module UseCases
           event.gathering = Gathering.find(request.gathering_id || request.gathering.id)
         end
         
-        if request.ability.cannot? :new, event
+        if @ability.cannot? :new, event
           add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
           event = nil
         end
@@ -134,7 +134,7 @@ module UseCases
       begin
         event = Event.find(request.id)
         
-        if request.ability.cannot? :destroy, event
+        if @ability.cannot? :destroy, event
           add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
         elsif !event.save 
           add_class_errors_hash(event.class, event.errors.messages, self_class_symbol, __method__)

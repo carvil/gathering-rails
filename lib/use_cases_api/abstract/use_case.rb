@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 
 module UseCases
-
   class UseCase
     include ErrorsModule
 
@@ -15,6 +14,10 @@ module UseCases
         self.request = request_or_hash
       end
       
+      # Setup the CanCan abilities; TODO: Ensure that CanCan is properly loaded for UseCases
+      @ability = Ability.new(self.request.user)
+      
+      # Setup the errors module
       initialize_errors_module
     end
     
@@ -35,5 +38,4 @@ module UseCases
       self.class.to_s.underscore.to_sym
     end
   end
-
 end

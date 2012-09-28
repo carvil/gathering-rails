@@ -1,6 +1,7 @@
 
 module UseCases
   class GatheringUseCase < UseCase
+    
     def create
       gathering = Gathering.new(request.atts)
       # By default we create a GatheringUser as owner whenever a new gathering is created
@@ -8,10 +9,10 @@ module UseCases
       role = "owner"
       
       # This conditional walks through each step and if it encounters an error will add that to the error list
-      if request.ability.cannot? :create, gathering
+      if @ability.cannot? :create, gathering
         add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(__method__))
       elsif gathering.save
-        response = GatheringUserUseCase.new(:atts => {:gathering => gathering, :user => user, :role => role}, :ability => request.ability, :user => request.user).create
+        response = GatheringUserUseCase.new(:atts => {:gathering => gathering, :user => user, :role => role}, :user => request.user, :user => request.user).create
         if !response.ok? || !response.gathering_user.persisted?
           # If the gathering user wasn't created we MUST destroy the gathering or or it will be orphaned.  This should never happen but better safe than sorry.
           gathering.destroy
@@ -30,7 +31,7 @@ module UseCases
       begin
         gathering = Gathering.find(request.id)
         gathering.update_attributes(request.atts)
-        if request.ability.cannot? :update, gathering
+        if @ability.cannot? :update, gathering
           add_error(:access_denied, self_class_symbol, :update, :gathering, :message => access_denied_message(__method__))
         elsif !gathering.save
           add_class_errors_hash(gathering.class, gathering.errors.messages, self_class_symbol, __method__)
@@ -46,7 +47,7 @@ module UseCases
     def show
       begin
         gathering = Gathering.find(request.id)
-        if request.ability.cannot? :show, gathering
+        if @ability.cannot? :show, gathering
           add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(__method__))
         end
         
@@ -60,7 +61,7 @@ module UseCases
     def edit
       begin
         gathering = Gathering.find(request.id)
-        if request.ability.cannot? :edit, gathering
+        if @ability.cannot? :edit, gathering
           add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(__method__))
         end
         
@@ -75,7 +76,7 @@ module UseCases
       # Pull all of the gathering instances that have the requesting user associated
       gatherings = []
       Gathering.with_user(request.user.id).each do |gathering|
-        gatherings << gathering if request.ability.can? :read, gathering
+        gatherings << gathering if @ability.can? :read, gathering
       end
       
       respond_with(:gatherings => gatherings)
@@ -83,7 +84,7 @@ module UseCases
     
     def new
       gathering = Gathering.new
-      if request.ability.cannot? :create, gathering
+      if @ability.cannot? :create, gathering
         add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(:create))
         gathering = nil
       end
@@ -93,7 +94,7 @@ module UseCases
     def destroy
       begin
         gathering = Gathering.find(request.id)
-        if request.ability.cannot? :destroy, gathering
+        if @ability.cannot? :destroy, gathering
           add_error(:access_denied, self_class_symbol, __method__, :gathering, access_denied_message(__method__))
           gathering = nil
         elsif !gathering.destroy

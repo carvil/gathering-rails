@@ -19,7 +19,7 @@ module UseCases
         gathering_user.role = request.atts[:role]
         gathering_user.inactive_at = request.atts[:inactive_at]
         
-        if request.ability.cannot? :create, gathering_user
+        if @ability.cannot? :create, gathering_user
           add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
         elsif !gathering_user.save
           add_class_errors_hash(gathering_user.class, gathering_user.errors.messages, self_class_symbol, __method__)
@@ -37,7 +37,7 @@ module UseCases
       begin
         gathering_user = GatheringUser.find(request.id)
         
-        if request.ability.cannot? :update, gathering_user
+        if @ability.cannot? :update, gathering_user
           add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
         # Cannot update the last owner to anything other than owner
         elsif request.atts[:role] != gathering_user.role && gathering_user.single_owner?
@@ -57,7 +57,7 @@ module UseCases
     def show
       begin
         gathering_user = GatheringUser.find(request.id)
-        if request.ability.cannot? :read, gathering_user
+        if @ability.cannot? :read, gathering_user
           add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
           gathering_user = nil
         end
@@ -72,7 +72,7 @@ module UseCases
     def edit
       begin
         gathering_user = GatheringUser.find(request.id)
-        if request.ability.cannot? :edit, gathering_user
+        if @ability.cannot? :edit, gathering_user
           add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
           gathering_user = nil
         end
@@ -97,7 +97,7 @@ module UseCases
         
         # TODO: Figure out a way to do authorize a collection more efficiently than looping through each one
         query.all.each do |gathering_user|
-          gathering_users << gathering_user if request.ability.can? :read, gathering_user
+          gathering_users << gathering_user if @ability.can? :read, gathering_user
         end
       end
       
@@ -106,7 +106,7 @@ module UseCases
     
     def new
       gathering_user = GatheringUser.new
-      if request.ability.cannot? :create, gathering_user
+      if @ability.cannot? :create, gathering_user
         gathering_user = nil
         add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
       end
@@ -119,14 +119,14 @@ module UseCases
         
         if gathering_user.single_owner?
           add_error(:unable_to_destroy_last_owner, self_class_symbol, __method__, :gathering_user, "Unable to destroy the only owner of a gathering, please make a new owner before attempting to delete the requested owner.")
-        elsif request.ability.cannot? :destroy, gathering_user
+        elsif @ability.cannot? :destroy, gathering_user
           add_error(:access_denied, self_class_symbol, __method__, :gathering_user, access_denied_message(__method__))
         elsif !gathering_user.destroy
           add_class_errors_hash(gathering_user.class, gathering_user.errors.messages, self_class_symbol, :destroy)
         end
         
         # Verify whether we should return the gathering user if found
-        gathering_user = nil if request.ability.cannot? :read, gathering_user
+        gathering_user = nil if @ability.cannot? :read, gathering_user
         
         respond_with(:gathering_user => gathering_user)
       rescue ActiveRecord::RecordNotFound => e
