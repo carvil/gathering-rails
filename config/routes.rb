@@ -1,10 +1,13 @@
 GatheringRails::Application.routes.draw do
+  authenticated :user do
+    root :to => 'pages#index'
+  end
+  root :to => 'pages#index'
   devise_for :users
+  resources :users, :only => :show
 
   resources :gatherings
   resources :events
-
-  root :to => "pages#index"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

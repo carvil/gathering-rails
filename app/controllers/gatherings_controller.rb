@@ -1,18 +1,15 @@
 class GatheringsController < ApplicationController
   include UseCases
   
+  before_filter :authenticate_user!
   respond_to :html
   
   def use(atts = {})
-    atts.merge!(:ability => current_ability)
     atts.merge!(:user => current_user)
     GatheringUseCase.new(atts)
   end
   
   def index
-    # @vm = OpenStruct.new
-    # @vm.gatherings = Gathering.all
-    # respond_with @vm
     @vm = use.list
     respond_with @vm
   end

@@ -13,4 +13,8 @@ module ApplicationHelper
     end
   end
 
+  # user control helpers
+  def user_controls_titlebar
+    render :partial => "shared/user_control_titlebar"
+  end
 end
