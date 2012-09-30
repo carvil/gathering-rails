@@ -4,6 +4,7 @@ class EventsController < ApplicationController
   respond_to :html
   
   def use(atts = {})
+    atts.merge!(:user => current_user)
     EventUseCase.new(atts)
   end
   
@@ -27,8 +28,10 @@ class EventsController < ApplicationController
     @vm = use(:id => params[:id]).edit
     respond_with @vm do |format|
       format.html {
-        if @vm.errors
+        if @vm.errors[:record_not_found]
           redirect_to events_path , :alert => "Event with id #{params[:id]} does not exist." if @vm.errors[:record_not_found]
+        elsif @vm.errors[:access_denied]
+          redirect_to event_path(@vm.event), :alert => "You do not have permission to edit this event"
         end
       }
     end

@@ -75,15 +75,13 @@ module UseCases
     def list
       # Pull all of the gathering instances that have the requesting user associated
       gatherings = []
-      events = {}
       Gathering.with_user(request.user.id).each do |gathering|
         if @ability.can? :read, gathering
           gatherings << gathering
-          events[gathering] = gathering.events
         end
       end
 
-      respond_with(:gatherings => gatherings, :events => events)
+      respond_with(:gatherings => gatherings)
     end
 
     def new

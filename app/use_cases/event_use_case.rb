@@ -78,7 +78,7 @@ module UseCases
           add_error(:access_denied, self_class_symbol, __method__, :event, access_denied_message(__method__))
         end
         
-        respond_with(:event => event)
+        respond_with(:event => event, :gatherings => [event.gathering])
         
       rescue ActiveRecord::RecordNotFound => e
         add_error(:record_not_found, self_class_symbol, __method__, :event,  e.message)
