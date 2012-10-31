@@ -1,18 +1,19 @@
-.gathering.row-fluid{ style: 'padding-bottom: 8px;' }
-  .gathering.row-fluid
-    .name.span4
-      %b= gathering.name
-      %i= " - (#{gathering.scheduled_date})"
-    .description.span6
-      = gathering.description
-    .options.span2
-      -if show_link
-        = link_to( "show", gathering_path( gathering ) )
+.gathering.row{ style: 'padding-bottom: 8px;' }
+  .twelve.columns
+    .gathering.row
+      .name.four.columns
+        %b= gathering.name
+        %i= " - (#{gathering.scheduled_date})"
+      .description.five.columns
+        = gathering.description
+      .options.three.columns
+        -if show_link
+          = link_to( "show", gathering_path( gathering ) )
+          |
+        = link_to( "edit", edit_gathering_path( gathering ) )
         |
-      = link_to( "edit", edit_gathering_path( gathering ) )
-      |
-      = link_to( "delete", gathering_path( gathering ), :method => :delete, :confirm => "Are you sure you want to delete this gathering?" )
-  .gathering.row-fluid
-    .spacer.span1
-    .spacer.span11
-      = render_gathering_events(gathering.events)
+        = link_to( "delete", gathering_path( gathering ), :method => :delete, :confirm => "Are you sure you want to delete this gathering?" )
+    .row
+      .one.columns
+      .eleven.columns
+        = render_gathering_events(gathering.events)

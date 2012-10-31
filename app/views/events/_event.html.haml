@@ -1,20 +1,20 @@
-.event.row-fluid{ style: 'padding-bottom: 8px;' }
-  .span10
-    .row-fluid
-      .title.span3
+.event.row{ style: 'padding-bottom: 8px;' }
+  .nine.columns
+    .row
+      .title.three.columns
         %b= event.title
-      .gathering.span2
+      .gathering.three.columns
         = event.gathering.name
-      .description.span5
+      .description.six.columns
         = event.description
-    .row-fluid
-      .date.span3
+    .row
+      .date.four.columns
         - if event.is_cancelled? 
           = "Cancelled!"
           .strike{style: 'text-decoration:line-through;'}= event.scheduled_at
-      .location.span5
+      .location.eight.columns
         = event.location
-  .options.span2
+  .options.three.columns
     -if show_link
       = link_to( "show", event_path( event ) )
       |
