@@ -13,11 +13,16 @@ gem "devise", "~> 2.1.2"
 gem "cancan", "~> 1.6.8"
 #gam "omniauth-facebook", "~> 1.4.1"
 
+# Gems only used in development
+group :development do
+  gem "miniskirt", "~> 1.2.1"
+end
+
 # Gems only used for tests
 group :test do
   gem "cucumber-rails", "~> 1.3.0", :require => false
   gem "minitest", "~> 3.4.0"
-  gem "miniskirt", "~> 1.2"
+  gem "miniskirt", "~> 1.2.1"
   gem "database_cleaner", "~> 0.8.0"
   gem "capybara", "~> 1.1.2"
   gem "turn", "~> 0.9.6"
@@ -30,10 +35,12 @@ end
 group :assets do
   gem "sass-rails",   "~> 3.2.3"
   gem "coffee-rails", "~> 3.2.1"
+  gem "compass-rails", "~> 1.0.3"
+  gem "zurb-foundation", "~> 3.1.1"
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-  gem "therubyracer", :platforms => :ruby
-  gem 'bootstrap-sass'
+  #gem "therubyracer", :platforms => :ruby
+  
   gem "uglifier", ">= 1.0.3"
 end
 

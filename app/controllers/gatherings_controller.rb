@@ -1,10 +1,10 @@
 class GatheringsController < ApplicationController
   include UseCases
   
+  before_filter :authenticate_user!
   respond_to :html
   
   def use(atts = {})
-    atts.merge!(:ability => current_ability)
     atts.merge!(:user => current_user)
     GatheringUseCase.new(atts)
   end
@@ -19,7 +19,7 @@ class GatheringsController < ApplicationController
     respond_with @vm do |format|
       format.html {
         if @vm.errors
-          redirect_to gatherings_path  #, :flash => "Gathering with id #{params[:id]} does not exist." if @vm.errors[:record_not_found]
+          redirect_to gatherings_path, :alert => "Gathering with id #{params[:id]} does not exist." if @vm.errors[:record_not_found]
         end
       }
     end
@@ -42,7 +42,7 @@ class GatheringsController < ApplicationController
         if @vm.ok?
           redirect_to gathering_path(@vm.gathering)
         else
-          render 'new', :flash => "Error: Unable to save gathering"
+          render 'new', :alert => "Error: Unable to save gathering"
         end
       }
     end

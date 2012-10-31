@@ -20,7 +20,7 @@
   .controls
     = collection_select(:event, :gathering, vm.gatherings, :id, :name)
     = errors(:gathering)
-
+    
 .control-group{ class: ( errors(:location) ? 'error' : '' ) }
   %label.control-label{ for: 'event_location' }
     Location
