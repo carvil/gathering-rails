@@ -10,9 +10,6 @@ class GatheringsController < ApplicationController
   end
   
   def index
-    # @vm = OpenStruct.new
-    # @vm.gatherings = Gathering.all
-    # respond_with @vm
     @vm = use.list
     respond_with @vm
   end
