@@ -2,6 +2,3 @@
 
 .gatherings
   = render :partial => "gathering", :collection => vm.gatherings, :locals => {:show_link => true}
-
-.options{ style: 'margin-top: 16px;' }
-  = link_to( "New gathering", new_gathering_path, class: 'btn' )

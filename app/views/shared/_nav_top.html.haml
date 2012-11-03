@@ -1,0 +1,10 @@
+%nav#left-nav
+  %ul.side-nav.left-nav
+    %li
+      = link_to "Home", root_path
+    %li
+      = link_to "Gatherings", gatherings_path
+    %li.divider
+    %li
+      - if user_signed_in?
+        = link_to current_user.display_name, user_path(current_user)

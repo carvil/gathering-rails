@@ -1,0 +1,10 @@
+.row
+  .eight.columns.centered
+    - if alert
+      #alert-box.alert-box.alert
+        = alert
+        = link_to "×", "", class: "close"
+    - if notice
+      #notice-box.alert-box
+        = notice
+        = link_to "×", "", class: "close"

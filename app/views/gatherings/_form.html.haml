@@ -1,22 +1,17 @@
-.control-group{ class: ( errors(:name) ? 'error' : '' ) }
-  %label.control-label{ for: 'gathering_name' }
-    Name
-  .controls
-    %input.span5{ type: 'text', id: 'gathering_name', name: 'gathering[name]', value: vm.gathering.name }
-    = errors(:name)
-
-.control-group{ class: ( errors(:description) ? 'error' : '' ) }
-  %label.control-label{ for: 'gathering_description' }
-    Description
-  .controls
-    %textarea.span5{ id: 'gathering_description', name: 'gathering[description]' }
-      = vm.gathering.description
-    = errors(:description)
-
-.control-group{ class: ( errors(:location) ? 'error' : '' ) }
-  %label.control-label{ for: 'location' }
-    Location
-  .controls
-    %input.span5{ type: 'text', id: 'location', name: 'gathering[location]', value: vm.gathering.location }
-    = errors(:location)
-
+.row
+  .eight.columns
+    #gathering-name.gathering-name{ class: errors(:gathering_name) ? 'error' : '' }
+      = f.label :name
+      = f.text_field :name, placeholder: "Enter the Gathering name (a.k.a. Title)"
+      %small= errors(:gathering_name)
+  .four.columns
+    #gathering-location.gathering-location{ class: ( errors(:gathering_location) ? 'error' : '' ) }
+      = f.label :location
+      = f.text_field :location, placeholder: "Enter the Gathering location"
+      %small= errors(:gathering_location)
+.row
+  .twelve.columns
+    #gathering-description.gathering-description{ class: ( errors(:gathering_description) ? 'error' : '' ) }
+      = f.label :description
+      = f.text_area :description, rows: 3, placeholder: "Provide a brief description"
+      %small= errors(:gathering_description)

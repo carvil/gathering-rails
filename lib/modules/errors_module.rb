@@ -34,6 +34,7 @@ module ErrorsModule
     # change a camel case class name to an underscore string
     prefix = klass.to_s.underscore << '_'
     errors_hash.each do |key, message|
+      message = message.join(';') if message.is_a?(Array)
       add_error((prefix + key.to_s).to_sym, location, action, key, message)
     end
   end

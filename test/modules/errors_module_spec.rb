@@ -34,7 +34,15 @@ describe ErrorsModule do
   describe "Attributes" do
     it "has an errors hash" do
       @error_class.must_respond_to("errors")
-      @error_class.errors.is_a?(Hash)
+      @error_class.errors.must_be_instance_of(Hash)
+    end
+    it "has an error message string attribute" do
+      err = error_parms
+      err_key = err[:error]
+      @error_class.add_error_public(err_key, err[:location], err[:action], err[:item], err[:message])
+      
+      @error_class.errors[err_key].message.wont_be_nil
+      @error_class.errors[err_key].message.must_be_instance_of(String)
     end
   end
   describe "Methods" do
@@ -42,6 +50,7 @@ describe ErrorsModule do
       err = error_parms
       err_key = err[:error]
       @error_class.add_error_public(err_key, err[:location], err[:action], err[:item], err[:message])
+      
       @error_class.errors.size.must_equal(1)
       @error_class.errors.must_include(err_key)
       @error_class.errors[err_key].location.must_equal(err[:location])
@@ -63,7 +72,8 @@ describe ErrorsModule do
         error.location.must_equal(err[:location])
         error.action.must_equal(err[:action])
         error.item.must_equal(am_key)
-        error.message.must_equal(am_msg)
+        error.message.must_equal(am_msg.join(';'))
+        error.message.must_be_instance_of(String)
       end
     end
   end

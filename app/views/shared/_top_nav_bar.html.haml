@@ -1,0 +1,11 @@
+%ul.nav-bar
+  %li
+    = link_to "Home", root_path
+  %li.has-flyout
+    = link_to "Gatherings", gatherings_path
+    = link_to "", "#", class: "flyout-toggle"
+    %ul.flyout
+      %li
+        = link_to "Gatherings", gatherings_path
+      %li
+        = link_to "New Gathering", new_gathering_path

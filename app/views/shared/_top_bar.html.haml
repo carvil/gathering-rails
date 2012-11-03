@@ -1,0 +1,24 @@
+.row
+  .twelve.columns
+    %nav.top-bar
+      %ul
+        %li.name
+          %h1= link_to "Gatherings", root_path
+        %li.toggle-topbar
+          = link_to "", "#"
+
+
+      - # User Nav Section
+      %section
+        %ul.right
+          %li.divider
+          %li{ class: user_signed_in? ? "has-dropdown" : "" }
+            - if user_signed_in?
+              = link_to current_user.display_name, user_path(current_user)
+              %ul.dropdown
+                %li
+                  = link_to "Sign Out", destroy_user_session_path, method: :delete
+            - else
+              = link_to "Sign In", "#", id: "sign-in-link", class: "sign-in-link", :'data-reveal-id' => "sign-in-modal"
+
+= render_sign_in_modal

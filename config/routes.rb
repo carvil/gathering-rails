@@ -3,6 +3,7 @@ GatheringRails::Application.routes.draw do
     root :to => 'pages#index'
   end
   root :to => 'pages#index'
+  
   devise_for :users
   resources :users, :only => :show
 

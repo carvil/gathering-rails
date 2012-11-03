@@ -15,7 +15,7 @@
   -# Set the viewport width to device width for mobile
   %meta{ :name => "viewport", :content => "width=device-width, initial-scale=1.0" }
 
-  %title= content_for?(:title) ? yield(:title) : "Untitled"
+  %title= content_for?(:title) ? yield(:title) : "Gatherings"
 
   -# Included CSS Files
   = stylesheet_link_tag "application"
@@ -29,17 +29,10 @@
   .body-container
     .row
       .twelve.columns
-        .text-center
-          = render 'shared/user_control_titlebar'
-    .row
-      .twelve.columns
-        %h1= @title
-      .row
-        .two.columns
-          left sidebar
-        .ten.columns
-          - if notice
-            %p.notice= notice
-          - if alert
-            %p.alert= alert
+        = render_top_bar
+        = render_top_nav_bar
+        = render_alert_boxes
+        .panel
+          %h1="CONTENT"
           = yield
+
